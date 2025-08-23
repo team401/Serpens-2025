@@ -1,0 +1,84 @@
+plugins {
+    id 'idea'
+    id 'java'
+    id 'org.jetbrains.kotlin.jvm' version '1.3.72' //Set the Kotlin version here
+    id "edu.wpi.first.GradleRIO" version "2020.3.2" //Set the WPILib version here
+}
+
+//Update settings.gradle with the correct name of the project: "YEAR-PROJECT-Code"
+group 'org.team401'
+version 'YEAR_REPLACE' //Put the current competition year here
+def teamNumber = 401 //Put your team number here
+def projectName = "PROJECT_REPLACE" //Put the name of the project here (e.g. "robot", "offseason", etc.)
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+    jcenter()
+
+    maven {
+        url "http://maven.team401.org/artifactory/frc"
+    }
+}
+
+//Library versions
+def sparkMaxVersion = "1.5.1" //Version of the SPARK MAX library to use, set to null to not use SPARK MAX
+def phoenixVersion = "5.18.2" //Version of CTRE Phoenix (Talon SRX/FX, Victor SPX) to use, set to null to not use Phoenix
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+
+    //WPILib dependencies
+    implementation wpi.deps.wpilib()
+    nativeZip wpi.deps.wpilibJni(wpi.platforms.roborio)
+    nativeDesktopZip wpi.deps.wpilibJni(wpi.platforms.desktop)
+
+    //WPILib simulation modules
+    simulation wpi.deps.sim.gui(wpi.platforms.desktop, false)
+
+    //Vektor
+    //UNCOMMENTimplementation "org.team401:Vektor-Core"
+
+    if (sparkMaxVersion != null) {
+        //SPARK MAX Libraries (remove these if not using SPARK MAX)
+        implementation "com.revrobotics.frc:SparkMax-java:$sparkMaxVersion"
+        nativeZip "com.revrobotics.frc:SparkMax-driver:$sparkMaxVersion:linuxathena@zip"
+    }
+
+    if (phoenixVersion != null) {
+        //CTRE Phoenix Libraries (remove these if not using Phoenix)
+        implementation "com.ctre.phoenix:api-java:$phoenixVersion"
+        nativeZip "com.ctre.phoenix:cci:$phoenixVersion:linuxathena@zip"
+        nativeZip "com.ctre.phoenix:diagnostics:$phoenixVersion:linuxathena@zip"
+        nativeZip "com.ctre.phoenix:core:$phoenixVersion:linuxathena@zip"
+    }
+}
+
+//GradleRIO deploy script (this shouldn't need to be modified)
+deploy {
+    targets {
+        roboRIO("rio") {
+            team = teamNumber
+        }
+    }
+    artifacts {
+        frcJavaArtifact("$projectName$version") {
+            targets << "rio"
+            debug = Boolean.parseBoolean(System.getProperty("deployDebug") ?: "false")
+            jar = "jar"
+        }
+    }
+}
+
+compileKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}
+compileTestKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}
+
+//Gradle wrapper version.  This should be updated periodically
+wrapper {
+    gradleVersion = "6.5"
+}
