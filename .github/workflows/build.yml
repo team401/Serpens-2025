@@ -1,0 +1,38 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: ["**"]
+
+jobs:
+  # Checks that the code is formatted
+  format:
+    name: Format
+    runs-on: ubuntu-latest
+    steps:
+      # Use actions/checkout@v4 with fetch-depth: 0 to get a deep checkout for the formatter.
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Grant execute permission for gradlew
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      # Checks the code format with gradle
+      - name: Check formatting
+        run: ./gradlew spotlessCheck
+  # Checks that the project can build successfully
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    container: wpilib/roborio-cross-ubuntu:2024-22.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Grant execute permission
+        run: chmod +x gradlew
+      - name: Build robot code
+        run: ./gradlew build
