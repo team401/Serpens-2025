@@ -1,5 +1,6 @@
 package frc.robot;
 
+import frc.robot.constants.ModeConstants;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
@@ -10,7 +11,7 @@ import frc.robot.subsystems.drive.ModuleIOTalonFX;
 
 public final class InitSubsystems {
   public static Drive initDrive() {
-    return switch (Constants.currentMode) {
+    return switch (ModeConstants.CURRENT_MODE) {
       case REAL ->
       // Real robot, instantiate hardware IO implementations
       new Drive(
