@@ -12,6 +12,14 @@ public class ShooterMechanism {
       new ShooterSpeeds(RotationsPerSecond.zero(), RotationsPerSecond.zero());
 
   /**
+   * This method should be called in each periodic loop by the ScoringSubsystem. It will NOT run
+   * automatically.
+   */
+  public void periodic() {
+    // TODO: Implement periodic
+  }
+
+  /**
    * Run the shooter wheels at a certain set of speeds.
    *
    * <p>This also updates the goal speeds of the shooter, for reference in {@link
