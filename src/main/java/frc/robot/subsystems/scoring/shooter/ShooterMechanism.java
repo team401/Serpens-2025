@@ -3,7 +3,11 @@ package frc.robot.subsystems.scoring.shooter;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import edu.wpi.first.units.measure.AngularVelocity;
+
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
+
+import frc.robot.constants.subsystems.scoring.ShooterConstants;
 
 public class ShooterMechanism {
   public record ShooterSpeeds(AngularVelocity leftSpeed, AngularVelocity rightSpeed) {}
@@ -13,6 +17,11 @@ public class ShooterMechanism {
 
   private final ShooterIO shooterIO;
   private ShooterInputsAutoLogged shooterInputs;
+
+  /** The last set shooter speeds */
+  @AutoLogOutput(key = "scoring/shooter/goalSpeeds")
+  private ShooterSpeeds goalSpeeds = ZERO_SPEEDS;
+  private boolean isClosedLoop = false;
 
   public ShooterMechanism(ShooterIO shooterIO) {
     this.shooterIO = shooterIO;
@@ -52,6 +61,6 @@ public class ShooterMechanism {
    */
   public boolean shooterReady() {
     // TODO: Implement checking if the shooter is ready
-    return true;
+    return !isClosedLoop || shooterInputs.leftMotorVelocity.isNear(goalSpeeds.leftSpeed, ShooterConstants.shooterVelocityEpsilonFraction);
   }
 }
