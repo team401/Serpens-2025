@@ -1,13 +1,14 @@
 package frc.robot.subsystems.scoring;
 
 import coppercore.wpilib_interface.MonitoredSubsystem;
+import frc.robot.subsystems.scoring.shooter.ShooterMechanism;
 import java.util.Optional;
 
 public class ScoringSubsystem extends MonitoredSubsystem {
   private static Optional<ScoringSubsystem> instance = Optional.empty();
 
-  private IndexerMechanism indexer;
-  private ShooterMechanism shooter;
+  private final IndexerMechanism indexer;
+  private final ShooterMechanism shooter;
 
   /**
    * Construct a new ScoringSubsystem
