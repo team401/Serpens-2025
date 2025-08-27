@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
+import frc.robot.constants.FeatureFlags;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.drive.Drive;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
@@ -35,7 +36,7 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
  */
 public class RobotContainer {
   // Subsystems
-  private final Drive drive;
+  private Drive drive = null;
 
   // Controller
   private final CommandXboxController controller = new CommandXboxController(0);
@@ -47,7 +48,6 @@ public class RobotContainer {
   public RobotContainer() {
     // TODO: Add FeatureFlags
     loadConstants();
-    drive = InitSubsystems.initDrive();
 
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
@@ -74,8 +74,14 @@ public class RobotContainer {
 
   public void loadConstants() {
     JsonConstants.loadConstants();
+    FeatureFlags.synced.loadData();
   }
 
+  public void configureSubsystems() {
+    if (FeatureFlags.synced.getObject().runDrive) {
+      drive = InitSubsystems.initDrive();
+    }
+  }
   /**
    * Use this method to define your button->command mappings. Buttons can be created by
    * instantiating a {@link GenericHID} or one of its subclasses ({@link
