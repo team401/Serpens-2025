@@ -7,13 +7,11 @@ public class JsonConstants {
   public static void loadConstants() {
     EnvironmentHandler.getEnvironmentHandler(
         Filesystem.getDeployDirectory().toPath().resolve("constants/config.json").toString());
-  
-        FeatureFlags.synced.loadData();
 
-        featureFlags = FeatureFlags.synced.getObject();
+    FeatureFlags.synced.loadData();
+
+    featureFlags = FeatureFlags.synced.getObject();
   }
 
-
-  
   public static FeatureFlags featureFlags;
 }
