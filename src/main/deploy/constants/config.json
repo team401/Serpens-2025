@@ -1,0 +1,13 @@
+{
+  "environment": "comp",
+  "defaults": "comp",
+  "environments": [
+    {
+      "name": "comp",
+      "filepath": "comp",
+      "files": [
+        "FeatureFlags.json"
+      ]
+    }
+  ]
+}

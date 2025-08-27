@@ -48,6 +48,7 @@ public class RobotContainer {
   public RobotContainer() {
     // TODO: Add FeatureFlags
     loadConstants();
+    configureSubsystems();
 
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
@@ -72,7 +73,7 @@ public class RobotContainer {
     configureButtonBindings();
   }
 
-  public void loadConstants() {
+  private void loadConstants() {
     JsonConstants.loadConstants();
     FeatureFlags.synced.loadData();
   }
