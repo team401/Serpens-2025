@@ -75,7 +75,6 @@ public class RobotContainer {
 
   private void loadConstants() {
     JsonConstants.loadConstants();
-    FeatureFlags.synced.loadData();
   }
 
   public void configureSubsystems() {
