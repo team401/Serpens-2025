@@ -76,13 +76,14 @@ When vision estimates and odometry can be trusted, the ShooterSpeeds can be dete
 
 * If that point is in not our team's side of the barge, scoring is currently impossible. In this case, the best course of action is to find the closest point on the barge to the point found previously that is within our side of the barge and warm up as if shooting at that spot instead. Note that it is vital that the state machine isn't allowed to transition to score even if everything else is ready, since the setpoint won't match an actual scoring location.
 
-* Take the distance to that point and feed it into either (see <<_decisions_yet_to_be_made>>):
+* Take the distance to that point and feed it into either (see <<TBD>>):
 
 ** A map that uses InterpolateDouble from coppercore to map distance to shooter speeds. This will most likely be the solution that is used.
 *** Potential challenge: Performance may be poor if we are constantly creating new ShooterSpeeds objects. ShooterSpeeds might be best converted into a class and then given a method to replace itself by interpolating between two values. Then, we could store one ShooterSpeeds object that gets replaced every in periodic with the current output of the map.
 
 ** A function that automatically generates shooter speeds based on distance using a physics equation. While potentially easier to tune, this method will likely be quite difficult.
 
+[#decisions-tbd,reftext=TBD]
 == Decisions Yet To Be Made
 
 * [ ] Decide on method of converting shooting distance to ShooterSpeeds

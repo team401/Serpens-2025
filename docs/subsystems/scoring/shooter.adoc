@@ -1,5 +1,5 @@
 = Shooter
-:toc:
+:toc: left
 
 == Summary
 
