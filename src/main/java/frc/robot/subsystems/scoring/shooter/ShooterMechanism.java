@@ -1,13 +1,12 @@
 package frc.robot.subsystems.scoring.shooter;
 
-import static edu.wpi.first.units.Units.RotationsPerSecond;
-
-import edu.wpi.first.units.measure.AngularVelocity;
-
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
-import frc.robot.constants.subsystems.scoring.ShooterConstants;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+import edu.wpi.first.units.measure.AngularVelocity;
+import frc.robot.constants.JsonConstants;
+import frc.robot.subsystems.scoring.shooter.ShooterIO.ShooterInputs;
 
 public class ShooterMechanism {
   public record ShooterSpeeds(AngularVelocity leftSpeed, AngularVelocity rightSpeed) {}
@@ -15,16 +14,24 @@ public class ShooterMechanism {
   private static final ShooterSpeeds ZERO_SPEEDS =
       new ShooterSpeeds(RotationsPerSecond.zero(), RotationsPerSecond.zero());
 
-  private final ShooterIO shooterIO;
-  private ShooterInputsAutoLogged shooterInputs;
+  private final ShooterIO io;
+  private ShooterInputsAutoLogged inputs;
 
   /** The last set shooter speeds */
   @AutoLogOutput(key = "scoring/shooter/goalSpeeds")
   private ShooterSpeeds goalSpeeds = ZERO_SPEEDS;
-  private boolean isClosedLoop = false;
+  private enum ShooterOutputMode {
+    ClosedLoop,
+    Voltage,
+    Current,
+    Stop,
+  }
+
+  @AutoLogOutput(key = "scoring/shooter/outputMode")
+  private ShooterOutputMode outputMode = ShooterOutputMode.ClosedLoop;
 
   public ShooterMechanism(ShooterIO shooterIO) {
-    this.shooterIO = shooterIO;
+    this.io = shooterIO;
   }
 
   /**
@@ -33,7 +40,7 @@ public class ShooterMechanism {
    */
   public void periodic() {
     // TODO: Implement periodic
-    Logger.processInputs("scoring/shooter/inputs", shooterInputs);
+    Logger.processInputs("scoring/shooter/inputs", inputs);
   }
 
   /**
@@ -45,13 +52,14 @@ public class ShooterMechanism {
    * @param speeds The set of speeds to run the shooter at
    */
   public void runSpeeds(ShooterSpeeds speeds) {
-    // TODO: Implement shooter warmup
+    io.runSpeeds(speeds);
+    outputMode = ShooterOutputMode.ClosedLoop;
   }
 
   /** Stop the shooter wheels, setting their goal speeds to zero */
   public void stop() {
-    // TODO: Implement stopping
-    runSpeeds(ZERO_SPEEDS);
+    io.stop();
+    outputMode = ShooterOutputMode.Stop;
   }
 
   /**
@@ -60,7 +68,24 @@ public class ShooterMechanism {
    * @return Whether the shooter is currently within the error margin of its goal speeds
    */
   public boolean shooterReady() {
-    // TODO: Implement checking if the shooter is ready
-    return !isClosedLoop || shooterInputs.leftMotorVelocity.isNear(goalSpeeds.leftSpeed, ShooterConstants.shooterVelocityEpsilonFraction);
+    if (outputMode != ShooterOutputMode.ClosedLoop) {
+      return true;
+    }
+
+    boolean leftReady = goalSpeeds.leftSpeed.isNear(inputs.leftMotorVelocity, JsonConstants.shooterConstants.shooterVelocityEpsilonFraction);
+    boolean rightReady = goalSpeeds.rightSpeed.isNear(inputs.rightMotorVelocity, JsonConstants.shooterConstants.shooterVelocityEpsilonFraction);
+
+    Logger.recordOutput("scoring/shooter/leftReady", leftReady);
+    Logger.recordOutput("scoring/shooter/rightReady", rightReady);
+
+    boolean shooterReady = leftReady && rightReady;
+
+    Logger.recordOutput("scoring/shooter/shooterReady", shooterReady);
+
+    return shooterReady;
+  }
+
+  public final ShooterInputs getInputs() {
+    return inputs;
   }
 }
