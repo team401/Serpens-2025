@@ -1,0 +1,38 @@
+= Shooter
+:toc:
+
+== Summary
+
+The shooter has 2 flywheels. These flywheels will be controlled using closed-loop control through Motion Magic Expo Velocity and drive the motors with Torque-Current Field Oriented Control
+
+== Public API
+
+The shooter provides two main methods for control, which should be called by (and only by) the Scoring Subsystem:
+
+=== Stop
+
+Stops the shooter motors.
+
+=== Run Speeds
+
+Runs the shooter motors at the speeds passed to the methods.
+
+=== Tuning Periodic
+
+This method will read LoggedTunableNumbers for each PID and Feedforward gain. If the tuning mode specifies a manual control output, it will read either the voltage or the current and apply it. If it specifies closed loop control, it will read shooter speeds and set them as its goal speeds.
+
+== Tuning Modes
+
+The shooter will define 3 tuning modes:
+
+=== Shooter closed loop tuning
+
+This mode will read PID & FeedForward gains from NetworkTables and use them to control to a setpoint specified for each wheel goal speed (also read from NetworkTables).
+
+=== Shooter voltage tuning
+
+Manually specify a voltage for each shooter wheel via NetworkTables. This is useful for quick testing and prototyping.
+
+=== Shooter current tuning
+
+Manually specify a torque-current for each shooter wheel via NetworkTables. This mode can be used to determine kS gain and quickly test motors.

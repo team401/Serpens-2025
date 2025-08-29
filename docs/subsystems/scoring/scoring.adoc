@@ -1,0 +1,88 @@
+= Scoring Subsystem
+:toc: left
+
+== Summary
+
+The scoring subsystem contains the xref:shooter.adoc[Shooter] and Indexer.
+
+It may be deemed beneficial that the scoring subsystem also includes the intake, to better coordinate intaking and scoring actions between the intake and the indexer-shooter combination.
+
+== State Machine
+
+The scoring subsystem state machine will now (tentatively) have 5 states, 4 of which will be used during competition:
+
+=== 1. Idle
+
+Indexer will target its bottom position, and the shooter wheels will stop.
+
+This state can only be exited by an external trigger to warm up.
+
+=== 2. Warmup
+
+The shooter wheels will accelerate toward their target angular velocity. The indexer will remain in its bottom position.
+
+This state can exited when:
+
+- The driver manually scores (operator interface is currently TBD)
+- The robot is ready to score if scoring semi-autonomously (semi-autonomous scoring has yet to be designed)
+- The driver releases the warmup trigger/stops warming up (operator interface is TBD).
+
+=== 3. Kick
+
+The shooter wheels continue targeting their goal speeds to score, while the indexer begins moving upward to "kick" the algae into the shooter wheels.
+
+This state will be left when the indexer gets near the top of its motion.
+
+=== 4. Wait to Score
+
+This state holds the indexer at the top for a short period of time while the shooter wheels continue to spin to make sure that the algae has time to completely leave the robot before returning to idle. Returning to idle too early would result in weak, inconsistent shots.
+
+This state will be active for a certain configurable period of time and then will transition back to idle.
+
+=== 5. Tuning
+
+This state will be automatically entered and exited whenever the tuning mode changes to or from a scoring tuning mode. This state will stop the motors and send the indexer to idle position on entry, after which it won't send any controls to avoid interfering with test modes.
+
+== Public API
+
+=== Ready-to-Intake Supplier
+
+A boolean function indicating if the indexer is at the bottom of its range of motion. If the indexer is not at the bottom, the robot will be unable to safely intake and readyToIntake will return false.
+
+=== Fire Trigger method
+
+This method is exposed publicly for 2 reasons:
+
+==== 1. To be used in button bindings (e.g. to start warming up).
+==== 2. For use in states, which are implemented outside of the ScoringSubsystem class itself.
+
+=== Control Methods
+
+A handful of public methods that should only be called from within states to allow the states to execute their actions:
+
+- `idle` - Command bottom position for indexer & 0 velocity for wheels
+- `warmup(ScoringSpeeds speeds)` - Command bottom position for indexer & warm up shooter wheels at `speeds`
+- `kick(ScoringSpeeds speeds)` - Command top position for indexer & run shooter wheels at `speeds`. This will also be used while waiting to score.
+
+== Determining ShooterSpeeds
+
+Sets of ShooterSpeeds to aim at the target need to be determined so that the robot can accurately score. In manual mode, this is relatively simple, as we can pick one shot to take that's easy to line the robot up for. This way, the driver will always have a fairly solid fallback.
+
+When vision estimates and odometry can be trusted, the ShooterSpeeds can be determined by:
+
+* Checking whether the barge is on the left or the right of the robot (check robot's heading)
+
+* Depending on which direction the barge is in, find the point of intersection when drawing a line out from that side of the robot to the barge
+
+* If that point is in not our team's side of the barge, scoring is currently impossible. In this case, the best course of action is to find the closest point on the barge to the point found previously that is within our side of the barge and warm up as if shooting at that spot instead. Note that it is vital that the state machine isn't allowed to transition to score even if everything else is ready, since the setpoint won't match an actual scoring location.
+
+* Take the distance to that point and feed it into either (see <<_decisions_yet_to_be_made>>):
+
+** A map that uses InterpolateDouble from coppercore to map distance to shooter speeds. This will most likely be the solution that is used.
+*** Potential challenge: Performance may be poor if we are constantly creating new ShooterSpeeds objects. ShooterSpeeds might be best converted into a class and then given a method to replace itself by interpolating between two values. Then, we could store one ShooterSpeeds object that gets replaced every in periodic with the current output of the map.
+
+** A function that automatically generates shooter speeds based on distance using a physics equation. While potentially easier to tune, this method will likely be quite difficult.
+
+== Decisions Yet To Be Made
+
+* [ ] Decide on method of converting shooting distance to ShooterSpeeds
