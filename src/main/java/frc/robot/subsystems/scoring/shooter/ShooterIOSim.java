@@ -4,6 +4,7 @@ import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 
 import com.ctre.phoenix6.sim.TalonFXSimState;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -65,14 +66,14 @@ public class ShooterIOSim extends ShooterIOTalonFX {
     velocityCache.mut_replace(
         leftSim.getAngularVelocityRadPerSec() / JsonConstants.shooterConstants.gearing,
         RadiansPerSecond);
-    leftMotorSimState.setRotorVelocity(velocityCache);
+    leftMotorSimState.setRotorVelocity(velocityCache.in(RotationsPerSecond));
 
     accelCache.mut_replace(
         leftSim.getAngularAccelerationRadPerSecSq() / JsonConstants.shooterConstants.gearing,
         RadiansPerSecondPerSecond); // Get the value as a double instead of as an
     // AngularAcceleration to avoid creating a new measure every
     // cycle
-    leftMotorSimState.setRotorAcceleration(accelCache);
+    leftMotorSimState.setRotorAcceleration(accelCache.in(RotationsPerSecondPerSecond));
 
     // Update right sim
     var rightMotorVoltage = rightMotorSimState.getMotorVoltage();
@@ -85,14 +86,14 @@ public class ShooterIOSim extends ShooterIOTalonFX {
     velocityCache.mut_replace(
         rightSim.getAngularVelocityRadPerSec() / JsonConstants.shooterConstants.gearing,
         RadiansPerSecond);
-    rightMotorSimState.setRotorVelocity(velocityCache);
+    rightMotorSimState.setRotorVelocity(velocityCache.in(RotationsPerSecond));
 
     accelCache.mut_replace(
         rightSim.getAngularAccelerationRadPerSecSq() / JsonConstants.shooterConstants.gearing,
         RadiansPerSecondPerSecond); // Get the value as a double instead of as an
     // AngularAcceleration to avoid creating a new measure every
     // cycle
-    rightMotorSimState.setRotorAcceleration(accelCache);
+    rightMotorSimState.setRotorAcceleration(accelCache.in(RotationsPerSecondPerSecond));
   }
 
   @Override
