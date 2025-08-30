@@ -14,9 +14,11 @@ public class JsonConstants {
     featureFlags = FeatureFlags.synced.getObject();
     canConstants = CANConstants.synced.getObject();
     shooterConstants = ShooterConstants.synced.getObject();
+    shooterConstantsSim = ShooterConstants.Sim.synced.getObject();
   }
 
   public static FeatureFlags featureFlags;
   public static CANConstants canConstants;
   public static ShooterConstants shooterConstants;
+  public static ShooterConstants.Sim shooterConstantsSim;
 }

@@ -22,8 +22,8 @@ import frc.robot.subsystems.scoring.shooter.ShooterMechanism.ShooterSpeeds;
 import frc.robot.util.PhoenixUtil;
 
 public class ShooterIOTalonFX implements ShooterIO {
-  private TalonFX leftMotor;
-  private TalonFX rightMotor;
+  protected TalonFX leftMotor;
+  protected TalonFX rightMotor;
 
   private Debouncer leftConnectedDebouncer =
       new Debouncer(JsonConstants.canConstants.deviceConnectedDebounceTime.in(Seconds));
