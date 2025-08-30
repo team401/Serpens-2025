@@ -26,6 +26,7 @@ import frc.robot.commands.DriveCommands;
 import frc.robot.constants.FeatureFlags;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.scoring.ScoringSubsystem;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -37,6 +38,7 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 public class RobotContainer {
   // Subsystems
   private Drive drive = null;
+  private ScoringSubsystem scoring = null;
 
   // Controller
   private final CommandXboxController controller = new CommandXboxController(0);
@@ -68,6 +70,8 @@ public class RobotContainer {
     autoChooser.addOption(
         "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
+    TestModeManager.init();
+
     // Configure the button bindings
     configureButtonBindings();
   }
@@ -79,6 +83,10 @@ public class RobotContainer {
   public void configureSubsystems() {
     if (FeatureFlags.synced.getObject().runDrive) {
       drive = InitSubsystems.initDrive();
+    }
+
+    if (FeatureFlags.synced.getObject().runScoring) {
+      scoring = InitSubsystems.initScoring();
     }
   }
   /**
@@ -128,5 +136,16 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     return autoChooser.get();
+  }
+
+  /**
+   * Runs the testPeriodic methods of subsystems
+   *
+   * <p>MUST be called by the Robot, does NOT run automatically
+   */
+  public void testPeriodic() {
+    if (JsonConstants.featureFlags.runScoring) {
+      scoring.testPeriodic();
+    }
   }
 }

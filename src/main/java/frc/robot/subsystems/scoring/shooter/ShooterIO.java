@@ -85,11 +85,14 @@ public interface ShooterIO {
   /**
    * Set the Feedforward gains used for closed-loop control
    *
+   * <p>This method name includes SVA to indicate that it expects the arguments kS, then kV, then
+   * kA, in that order
+   *
    * @param kS Static friction gain: output needed to overcome static friction
    * @param kV Velocity gain: output required to hold a certain velocity
    * @param kA Acceleration gain: output required to induce a certain acceleration from the wheels
    */
-  public default void setFF(double kS, double kV, double kA) {}
+  public default void setFFSVA(double kS, double kV, double kA) {}
 
   /**
    * Set whether the shooter rollers should coast or brake when no output is applied

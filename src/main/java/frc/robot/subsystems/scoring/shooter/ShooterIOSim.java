@@ -2,11 +2,13 @@ package frc.robot.subsystems.scoring.shooter;
 
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import com.ctre.phoenix6.sim.TalonFXSimState;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
+import edu.wpi.first.units.measure.MutAngularAcceleration;
 import edu.wpi.first.units.measure.MutAngularVelocity;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
@@ -46,6 +48,8 @@ public class ShooterIOSim extends ShooterIOTalonFX {
    */
   private MutAngularVelocity velocityCache = RotationsPerSecond.mutable(0.0);
 
+  private MutAngularAcceleration accelCache = RadiansPerSecondPerSecond.mutable(0.0);
+
   private void updateSimState() {
     double deltaTime = deltaTimer.get();
     deltaTimer.restart();
@@ -63,6 +67,13 @@ public class ShooterIOSim extends ShooterIOTalonFX {
         RadiansPerSecond);
     leftMotorSimState.setRotorVelocity(velocityCache);
 
+    accelCache.mut_replace(
+        leftSim.getAngularAccelerationRadPerSecSq(),
+        RadiansPerSecondPerSecond); // Get the value as a double instead of as an
+    // AngularAcceleration to avoid creating a new measure every
+    // cycle
+    leftMotorSimState.setRotorAcceleration(accelCache);
+
     // Update right sim
     var rightMotorVoltage = rightMotorSimState.getMotorVoltage();
     rightSim.setInput(rightMotorVoltage);
@@ -75,6 +86,13 @@ public class ShooterIOSim extends ShooterIOTalonFX {
         rightSim.getAngularVelocityRadPerSec() / JsonConstants.shooterConstants.gearing,
         RadiansPerSecond);
     rightMotorSimState.setRotorVelocity(velocityCache);
+
+    accelCache.mut_replace(
+        rightSim.getAngularAccelerationRadPerSecSq(),
+        RadiansPerSecondPerSecond); // Get the value as a double instead of as an
+    // AngularAcceleration to avoid creating a new measure every
+    // cycle
+    rightMotorSimState.setRotorAcceleration(accelCache);
   }
 
   @Override

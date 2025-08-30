@@ -62,6 +62,11 @@ public class ScoringSubsystem extends MonitoredSubsystem {
 
   @Override
   public void monitoredPeriodic() {
+    indexer.periodic();
     shooter.periodic();
+  }
+
+  public void testPeriodic() {
+    shooter.testPeriodic();
   }
 }

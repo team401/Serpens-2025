@@ -20,6 +20,7 @@ import edu.wpi.first.units.measure.Voltage;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.scoring.shooter.ShooterMechanism.ShooterSpeeds;
 import frc.robot.util.PhoenixUtil;
+import org.littletonrobotics.junction.Logger;
 
 public class ShooterIOTalonFX implements ShooterIO {
   protected TalonFX leftMotor;
@@ -168,6 +169,10 @@ public class ShooterIOTalonFX implements ShooterIO {
     inputs.leftMotorStatorCurrent.mut_replace(leftMotorStatorCurrent.getValue());
     inputs.leftMotorTemp.mut_replace(leftMotorTemperature.getValue());
 
+    if (!leftStatus.isOK()) {
+      System.err.println(leftStatus);
+    }
+
     // Update right inputs
     inputs.rightMotorConnected = rightConnectedDebouncer.calculate(rightStatus.isOK());
     inputs.rightMotorVelocity.mut_replace(rightMotorVelocity.getValue());
@@ -183,12 +188,14 @@ public class ShooterIOTalonFX implements ShooterIO {
   public void runOpenLoop(Current leftTorqueCurrent, Current rightTorqueCurrent) {
     leftMotor.setControl(leftFOCRequest.withOutput(leftTorqueCurrent));
     rightMotor.setControl(rightFOCRequest.withOutput(rightTorqueCurrent));
+    Logger.recordOutput("scoring/shooter/lastOutputCommand", "TorqueCurrent");
   }
 
   @Override
   public void runOpenLoop(Voltage leftVoltage, Voltage rightVoltage) {
     leftMotor.setControl(leftVoltageRequest.withOutput(leftVoltage));
     rightMotor.setControl(rightVoltageRequest.withOutput(rightVoltage));
+    Logger.recordOutput("scoring/shooter/lastOutputCommand", "Voltage");
   }
 
   @Override
@@ -201,6 +208,7 @@ public class ShooterIOTalonFX implements ShooterIO {
   public void runSpeeds(ShooterSpeeds speeds) {
     leftMotor.setControl(leftClosedLoopRequest.withVelocity(speeds.leftSpeed()));
     rightMotor.setControl(rightClosedLoopRequest.withVelocity(speeds.rightSpeed()));
+    Logger.recordOutput("scoring/shooter/lastOutputCommand", "Speeds");
   }
 
   @Override
@@ -213,7 +221,7 @@ public class ShooterIOTalonFX implements ShooterIO {
   }
 
   @Override
-  public void setFF(double kS, double kV, double kA) {
+  public void setFFSVA(double kS, double kV, double kA) {
     talonFXConfigs.Slot0.kS = kS;
     talonFXConfigs.Slot0.kV = kV;
     talonFXConfigs.Slot0.kA = kA;
