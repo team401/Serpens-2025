@@ -68,7 +68,7 @@ public class ShooterIOSim extends ShooterIOTalonFX {
     leftMotorSimState.setRotorVelocity(velocityCache);
 
     accelCache.mut_replace(
-        leftSim.getAngularAccelerationRadPerSecSq(),
+        leftSim.getAngularAccelerationRadPerSecSq() / JsonConstants.shooterConstants.gearing,
         RadiansPerSecondPerSecond); // Get the value as a double instead of as an
     // AngularAcceleration to avoid creating a new measure every
     // cycle
@@ -88,7 +88,7 @@ public class ShooterIOSim extends ShooterIOTalonFX {
     rightMotorSimState.setRotorVelocity(velocityCache);
 
     accelCache.mut_replace(
-        rightSim.getAngularAccelerationRadPerSecSq(),
+        rightSim.getAngularAccelerationRadPerSecSq() / JsonConstants.shooterConstants.gearing,
         RadiansPerSecondPerSecond); // Get the value as a double instead of as an
     // AngularAcceleration to avoid creating a new measure every
     // cycle

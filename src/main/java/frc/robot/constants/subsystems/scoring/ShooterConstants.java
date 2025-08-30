@@ -4,6 +4,7 @@ import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 
+import com.ctre.phoenix6.configs.ClosedLoopGeneralConfigs;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
@@ -55,6 +56,7 @@ public final class ShooterConstants {
                   .withSupplyCurrentLimitEnable(true)
                   .withStatorCurrentLimit(Amps.of(40.0))
                   .withStatorCurrentLimitEnable(true))
+          .withClosedLoopGeneral(new ClosedLoopGeneralConfigs().withContinuousWrap(true))
           .withSlot0(
               new Slot0Configs()
                   .withKP(0.0) // TODO: Tune gains in sim and real life
