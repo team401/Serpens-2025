@@ -3,7 +3,7 @@
 
 == Summary
 
-The shooter has 2 flywheels. These flywheels will be controlled using closed-loop control through Motion Magic Expo Velocity and drive the motors with Torque-Current Field Oriented Control
+The shooter has 2 flywheels. These flywheels will be controlled using closed-loop control through Motion Magic Velocity and drive the motors with Torque-Current Field Oriented Control
 
 == Public API
 

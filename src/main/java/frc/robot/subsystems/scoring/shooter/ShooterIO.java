@@ -3,9 +3,11 @@ package frc.robot.subsystems.scoring.shooter;
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Celsius;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
 import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.MutAngularAcceleration;
 import edu.wpi.first.units.measure.MutAngularVelocity;
 import edu.wpi.first.units.measure.MutCurrent;
 import edu.wpi.first.units.measure.MutTemperature;
@@ -19,6 +21,7 @@ public interface ShooterIO {
   public static class ShooterInputs {
     public boolean leftMotorConnected = false;
     public MutAngularVelocity leftMotorVelocity = RotationsPerSecond.mutable(0.0);
+    public MutAngularAcceleration leftMotorAcceleration = RotationsPerSecondPerSecond.mutable(0.0);
     public MutVoltage leftMotorAppliedVolts = Volts.mutable(0.0);
     public double leftMotorClosedLoopOutput = 0.0;
     public MutCurrent leftMotorSupplyCurrent = Amps.mutable(0.0);
@@ -27,12 +30,21 @@ public interface ShooterIO {
 
     public boolean rightMotorConnected = false;
     public MutAngularVelocity rightMotorVelocity = RotationsPerSecond.mutable(0.0);
+    public MutAngularAcceleration rightMotorAcceleration = RotationsPerSecondPerSecond.mutable(0.0);
     public MutVoltage rightMotorAppliedVolts = Volts.mutable(0.0);
     public double rightMotorClosedLoopOutput = 0.0;
     public MutCurrent rightMotorSupplyCurrent = Amps.mutable(0.0);
     public MutCurrent rightMotorStatorCurrent = Amps.mutable(0.0);
     public MutTemperature rightMotorTemp = Celsius.mutable(0.0);
   }
+
+  /**
+   * Refresh and read all status signals from motors, updating a ShooterInputs object with new
+   * values
+   *
+   * @param inputs The ShooterInputs object to update
+   */
+  public default void updateInputs(ShooterInputs inputs) {}
 
   /**
    * Run the Shooter flywheels with a certain torque current applied to each motor
@@ -54,7 +66,7 @@ public interface ShooterIO {
   public default void stop() {}
 
   /**
-   * Run the shooter flywheels at a certain set of speeds using Motion Magic Expo Velocity
+   * Run the shooter flywheels at a certain set of speeds using Motion Magic Velocity
    * (TorqueCurrentFOC)
    *
    * @param speeds The ShooterSpeeds to target

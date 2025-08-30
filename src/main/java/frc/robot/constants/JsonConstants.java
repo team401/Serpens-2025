@@ -12,9 +12,11 @@ public class JsonConstants {
     FeatureFlags.synced.loadData();
 
     featureFlags = FeatureFlags.synced.getObject();
+    canConstants = CANConstants.synced.getObject();
     shooterConstants = ShooterConstants.synced.getObject();
   }
 
   public static FeatureFlags featureFlags;
+  public static CANConstants canConstants;
   public static ShooterConstants shooterConstants;
 }

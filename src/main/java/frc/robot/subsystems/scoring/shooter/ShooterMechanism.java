@@ -1,12 +1,12 @@
 package frc.robot.subsystems.scoring.shooter;
 
-import org.littletonrobotics.junction.AutoLogOutput;
-import org.littletonrobotics.junction.Logger;
-
 import static edu.wpi.first.units.Units.RotationsPerSecond;
+
 import edu.wpi.first.units.measure.AngularVelocity;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.scoring.shooter.ShooterIO.ShooterInputs;
+import org.littletonrobotics.junction.AutoLogOutput;
+import org.littletonrobotics.junction.Logger;
 
 public class ShooterMechanism {
   public record ShooterSpeeds(AngularVelocity leftSpeed, AngularVelocity rightSpeed) {}
@@ -20,6 +20,7 @@ public class ShooterMechanism {
   /** The last set shooter speeds */
   @AutoLogOutput(key = "scoring/shooter/goalSpeeds")
   private ShooterSpeeds goalSpeeds = ZERO_SPEEDS;
+
   private enum ShooterOutputMode {
     ClosedLoop,
     Voltage,
@@ -39,7 +40,6 @@ public class ShooterMechanism {
    * automatically.
    */
   public void periodic() {
-    // TODO: Implement periodic
     Logger.processInputs("scoring/shooter/inputs", inputs);
   }
 
@@ -72,8 +72,14 @@ public class ShooterMechanism {
       return true;
     }
 
-    boolean leftReady = goalSpeeds.leftSpeed.isNear(inputs.leftMotorVelocity, JsonConstants.shooterConstants.shooterVelocityEpsilonFraction);
-    boolean rightReady = goalSpeeds.rightSpeed.isNear(inputs.rightMotorVelocity, JsonConstants.shooterConstants.shooterVelocityEpsilonFraction);
+    boolean leftReady =
+        goalSpeeds.leftSpeed.isNear(
+            inputs.leftMotorVelocity,
+            JsonConstants.shooterConstants.shooterVelocityEpsilonFraction);
+    boolean rightReady =
+        goalSpeeds.rightSpeed.isNear(
+            inputs.rightMotorVelocity,
+            JsonConstants.shooterConstants.shooterVelocityEpsilonFraction);
 
     Logger.recordOutput("scoring/shooter/leftReady", leftReady);
     Logger.recordOutput("scoring/shooter/rightReady", rightReady);
