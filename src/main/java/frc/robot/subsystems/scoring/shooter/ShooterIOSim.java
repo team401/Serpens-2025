@@ -6,6 +6,8 @@ import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 
+import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.sim.ChassisReference;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
@@ -40,6 +42,9 @@ public class ShooterIOSim extends ShooterIOTalonFX {
     leftMotorSimState = leftMotor.getSimState();
     rightMotorSimState = rightMotor.getSimState();
 
+    leftMotorSimState.Orientation = ChassisReference.Clockwise_Positive;
+    rightMotorSimState.Orientation = ChassisReference.CounterClockwise_Positive;
+
     deltaTimer.restart();
   }
 
@@ -66,13 +71,20 @@ public class ShooterIOSim extends ShooterIOTalonFX {
     velocityCache.mut_replace(
         leftSim.getAngularVelocityRadPerSec() / JsonConstants.shooterConstants.gearing,
         RadiansPerSecond);
-    leftMotorSimState.setRotorVelocity(velocityCache.in(RotationsPerSecond));
 
-    accelCache.mut_replace(
-        leftSim.getAngularAccelerationRadPerSecSq() / JsonConstants.shooterConstants.gearing,
-        RadiansPerSecondPerSecond); // Get the value as a double instead of as an
+    // Get the value as a double instead of as an
     // AngularAcceleration to avoid creating a new measure every
     // cycle
+    accelCache.mut_replace(
+        leftSim.getAngularAccelerationRadPerSecSq() / JsonConstants.shooterConstants.gearing,
+        RadiansPerSecondPerSecond);
+
+    if (JsonConstants.shooterConstants.leftMotorInverted == InvertedValue.Clockwise_Positive) {
+      velocityCache.mut_times(-1.0);
+      accelCache.mut_times(-1.0);
+    }
+
+    leftMotorSimState.setRotorVelocity(velocityCache.in(RotationsPerSecond));
     leftMotorSimState.setRotorAcceleration(accelCache.in(RotationsPerSecondPerSecond));
 
     // Update right sim
@@ -86,13 +98,21 @@ public class ShooterIOSim extends ShooterIOTalonFX {
     velocityCache.mut_replace(
         rightSim.getAngularVelocityRadPerSec() / JsonConstants.shooterConstants.gearing,
         RadiansPerSecond);
-    rightMotorSimState.setRotorVelocity(velocityCache.in(RotationsPerSecond));
 
-    accelCache.mut_replace(
-        rightSim.getAngularAccelerationRadPerSecSq() / JsonConstants.shooterConstants.gearing,
-        RadiansPerSecondPerSecond); // Get the value as a double instead of as an
+    // Get the value as a double instead of as an
     // AngularAcceleration to avoid creating a new measure every
     // cycle
+    accelCache.mut_replace(
+        rightSim.getAngularAccelerationRadPerSecSq() / JsonConstants.shooterConstants.gearing,
+        RadiansPerSecondPerSecond);
+
+    if (JsonConstants.shooterConstants.rightMotorInverted
+        == InvertedValue.CounterClockwise_Positive) {
+      velocityCache.mut_times(-1.0);
+      accelCache.mut_times(-1.0);
+    }
+
+    rightMotorSimState.setRotorVelocity(velocityCache.in(RotationsPerSecond));
     rightMotorSimState.setRotorAcceleration(accelCache.in(RotationsPerSecondPerSecond));
   }
 

@@ -170,8 +170,11 @@ public class ShooterIOTalonFX implements ShooterIO {
     inputs.leftMotorTemp.mut_replace(leftMotorTemperature.getValue());
 
     if (!leftStatus.isOK()) {
-      System.err.println(leftStatus);
+      System.err.println("Left shooter motor had bad status: " + leftStatus);
     }
+
+    Logger.recordOutput(
+        "scoring/shooter/leftOutputStatus", leftMotor.getMotorOutputStatus().getValue());
 
     // Update right inputs
     inputs.rightMotorConnected = rightConnectedDebouncer.calculate(rightStatus.isOK());
@@ -182,6 +185,13 @@ public class ShooterIOTalonFX implements ShooterIO {
     inputs.rightMotorSupplyCurrent.mut_replace(rightMotorSupplyCurrent.getValue());
     inputs.rightMotorStatorCurrent.mut_replace(rightMotorStatorCurrent.getValue());
     inputs.rightMotorTemp.mut_replace(rightMotorTemperature.getValue());
+
+    Logger.recordOutput(
+        "scoring/shooter/rightOutputStatus", rightMotor.getMotorOutputStatus().getValue());
+
+    if (!rightStatus.isOK()) {
+      System.err.println("Right shooter motor had bad status: " + rightStatus);
+    }
   }
 
   @Override
