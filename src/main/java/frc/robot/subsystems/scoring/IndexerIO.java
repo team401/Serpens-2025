@@ -36,4 +36,31 @@ public interface IndexerIO {
 
   /** Goal angle of the indexer, as seen by the indexer CANcoder */
   public MutAngle indexerGoalPosition = Rotations.mutable(0.0);
-  
+
+  /** The setpoint target position from Motion Magic Expo */
+  public MutAngle indexerSetpointPosition = Rotations.mutable(0.0);
+
+  /** The target angular velocity of the indexer */
+  public MutAngularVelocity indexerTargetVelocity = RotationsPerSecond.mutable(0.0);
+
+  /** Supply current of the indexer motor */ 
+  public MutCurrent indexerSupplyCurrent = Amps.mutable(0.0);
+
+  /** Stator current of the indexer motor */
+  public MutCurrent indexerStatorCurrent = Amps.mutable(0.0);
+}
+
+@AutoLog
+public static class IndexerInputs {
+  /**
+  * closed-loop output of the indexer controller. this value isn't a unit because Phoenix 6 
+  * doesn't use a unit for this value (as it can be a Voltage or a Current depending on whether or not FOC is used) 
+  */
+  public double indexerInput = 0.0; 
+
+}
+ /**
+  * Updates a IndexerInputs with the current information from sensors and motors
+  *
+  * <p> Should be called by the IndexerMechanism periodically 
+  */
