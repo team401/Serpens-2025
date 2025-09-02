@@ -19,5 +19,21 @@ import org.littletonrobotics.junction.AutoLog;
 
 public interface IndexerIO {
   @AutoLog 
-  public 
+  public static class IndexerInputs {
+  /**
+    * Whether or not the indexer CANcoder is connected
+    *
+    *<p> This value is determined by whether or not refreshing the Position status signal returns an OK signal
+    */
+    
+  public boolean isIndexerEncoderConnected = false; 
+
+  /** Current indexer position as reported by the CANcoder */
+  public MutAngle indexerPosition = Rotations.mutable(0.0);
+
+  /** Current velocity of the indexer as reported by the CANcoder */
+  public MutAngularVelocity indexerVelocity = RotationsPerSecond.mutable(0.0);
+
+  /** Goal angle of the indexer, as seen by the indexer CANcoder */
+  public MutAngle indexerGoalPosition = Rotations.mutable(0.0);
   
