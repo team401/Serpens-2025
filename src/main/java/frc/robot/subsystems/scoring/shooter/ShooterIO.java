@@ -1,41 +1,39 @@
 package frc.robot.subsystems.scoring.shooter;
 
 import static edu.wpi.first.units.Units.Amps;
-import static edu.wpi.first.units.Units.Celsius;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.MutAngularAcceleration;
 import edu.wpi.first.units.measure.MutAngularVelocity;
 import edu.wpi.first.units.measure.MutCurrent;
-import edu.wpi.first.units.measure.MutTemperature;
 import edu.wpi.first.units.measure.MutVoltage;
 import edu.wpi.first.units.measure.Voltage;
-import frc.robot.subsystems.scoring.shooter.ShooterMechanism.ShooterSpeeds;
 import org.littletonrobotics.junction.AutoLog;
 
 public interface ShooterIO {
+  /**
+   * A value to indicate to a shooterIO what side of the shooter it's on.
+   *
+   * <p>This is necessary because it allows the same IO to be reused between the left and right
+   * sides and removes a ton of duplicate code.
+   */
+  public enum ShooterSide {
+    Left,
+    Right
+  }
+
   @AutoLog
   public static class ShooterInputs {
-    public boolean leftMotorConnected = false;
-    public MutAngularVelocity leftMotorVelocity = RotationsPerSecond.mutable(0.0);
-    public MutAngularAcceleration leftMotorAcceleration = RotationsPerSecondPerSecond.mutable(0.0);
-    public MutVoltage leftMotorAppliedVolts = Volts.mutable(0.0);
-    public double leftMotorClosedLoopOutput = 0.0;
-    public MutCurrent leftMotorSupplyCurrent = Amps.mutable(0.0);
-    public MutCurrent leftMotorStatorCurrent = Amps.mutable(0.0);
-    public MutTemperature leftMotorTemp = Celsius.mutable(0.0);
-
-    public boolean rightMotorConnected = false;
-    public MutAngularVelocity rightMotorVelocity = RotationsPerSecond.mutable(0.0);
-    public MutAngularAcceleration rightMotorAcceleration = RotationsPerSecondPerSecond.mutable(0.0);
-    public MutVoltage rightMotorAppliedVolts = Volts.mutable(0.0);
-    public double rightMotorClosedLoopOutput = 0.0;
-    public MutCurrent rightMotorSupplyCurrent = Amps.mutable(0.0);
-    public MutCurrent rightMotorStatorCurrent = Amps.mutable(0.0);
-    public MutTemperature rightMotorTemp = Celsius.mutable(0.0);
+    public boolean motorConnected = false;
+    public MutAngularVelocity motorVelocity = RotationsPerSecond.mutable(0.0);
+    public MutAngularAcceleration motorAcceleration = RotationsPerSecondPerSecond.mutable(0.0);
+    public MutVoltage motorAppliedVolts = Volts.mutable(0.0);
+    public MutCurrent motorSupplyCurrent = Amps.mutable(0.0);
+    public MutCurrent motorStatorCurrent = Amps.mutable(0.0);
   }
 
   /**
@@ -49,29 +47,26 @@ public interface ShooterIO {
   /**
    * Run the Shooter flywheels with a certain torque current applied to each motor
    *
-   * @param leftTorqueCurrent Torque current to apply to the left motor
-   * @param rightTorqueCurrent Torque current to apply to the right motor
+   * @param torqueCurrent Torque current to apply to the left motor
    */
-  public default void runOpenLoop(Current leftTorqueCurrent, Current rightTorqueCurrent) {}
+  public default void runOpenLoop(Current torqueCurrent) {}
 
   /**
    * Run the Shooter flywheels with a certain voltage applied to each motor
    *
-   * @param leftVoltage Voltage to apply to the left motor
-   * @param rightVoltage Voltage to apply to the right motor
+   * @param voltage Voltage to apply to the left motor
    */
-  public default void runOpenLoop(Voltage leftVoltage, Voltage rightVoltage) {}
+  public default void runOpenLoop(Voltage voltage) {}
 
   /** Stop both Shooter flywheels */
   public default void stop() {}
 
   /**
-   * Run the shooter flywheels at a certain set of speeds using Motion Magic Velocity
-   * (TorqueCurrentFOC)
+   * Run the shooter flywheel at a certain speed using Motion Magic Velocity (TorqueCurrentFOC)
    *
-   * @param speeds The ShooterSpeeds to target
+   * @param speed The AngularVelocity to target
    */
-  public default void runSpeeds(ShooterSpeeds speeds) {}
+  public default void runSpeed(AngularVelocity speed) {}
 
   /**
    * Set the PID gains used for closed-loop control
@@ -83,7 +78,7 @@ public interface ShooterIO {
   public default void setPID(double kP, double kI, double kD) {}
 
   /**
-   * Set the Feedforward gains used for closed-loop control
+   * Set the feed-forward gains used for closed-loop control
    *
    * <p>This method name includes SVA to indicate that it expects the arguments kS, then kV, then
    * kA, in that order

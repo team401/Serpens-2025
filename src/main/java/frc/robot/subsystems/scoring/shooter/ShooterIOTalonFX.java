@@ -3,6 +3,7 @@ package frc.robot.subsystems.scoring.shooter;
 import static edu.wpi.first.units.Units.Seconds;
 
 import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVelocityTorqueCurrentFOC;
@@ -10,215 +11,149 @@ import com.ctre.phoenix6.controls.TorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.units.measure.AngularAcceleration;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
-import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
 import frc.robot.constants.JsonConstants;
-import frc.robot.subsystems.scoring.shooter.ShooterMechanism.ShooterSpeeds;
 import frc.robot.util.PhoenixUtil;
 import org.littletonrobotics.junction.Logger;
 
 public class ShooterIOTalonFX implements ShooterIO {
-  protected TalonFX leftMotor;
-  protected TalonFX rightMotor;
+  protected final ShooterSide side;
 
-  private Debouncer leftConnectedDebouncer =
-      new Debouncer(JsonConstants.canConstants.deviceConnectedDebounceTime.in(Seconds));
-  private Debouncer rightConnectedDebouncer =
+  protected TalonFX motor;
+
+  private Debouncer connectedDebouncer =
       new Debouncer(JsonConstants.canConstants.deviceConnectedDebounceTime.in(Seconds));
 
   // Store TalonFX configs to avoid creating a new one when updating PID/FF gains in tuning mode
   private TalonFXConfiguration talonFXConfigs;
 
-  private final StatusSignal<AngularVelocity> leftMotorVelocity;
-  private final StatusSignal<AngularAcceleration> leftMotorAcceleration;
-  private final StatusSignal<Voltage> leftMotorVoltage;
-  private final StatusSignal<Double> leftMotorClosedLoopOutput;
-  private final StatusSignal<Current> leftMotorSupplyCurrent;
-  private final StatusSignal<Current> leftMotorStatorCurrent;
-  private final StatusSignal<Temperature> leftMotorTemperature;
-
-  private final StatusSignal<AngularVelocity> rightMotorVelocity;
-  private final StatusSignal<AngularAcceleration> rightMotorAcceleration;
-  private final StatusSignal<Voltage> rightMotorVoltage;
-  private final StatusSignal<Double> rightMotorClosedLoopOutput;
-  private final StatusSignal<Current> rightMotorSupplyCurrent;
-  private final StatusSignal<Current> rightMotorStatorCurrent;
-  private final StatusSignal<Temperature> rightMotorTemperature;
+  private final StatusSignal<AngularVelocity> motorVelocity;
+  private final StatusSignal<AngularAcceleration> motorAcceleration;
+  private final StatusSignal<Voltage> motorVoltage;
+  private final StatusSignal<Double> motorClosedLoopOutput;
+  private final StatusSignal<Current> motorSupplyCurrent;
+  private final StatusSignal<Current> motorStatorCurrent;
 
   // Store control requests to avoid creating new ones every cycle
-  private final TorqueCurrentFOC leftFOCRequest = new TorqueCurrentFOC(0.0);
-  private final VoltageOut leftVoltageRequest = new VoltageOut(0.0);
-  private final MotionMagicVelocityTorqueCurrentFOC leftClosedLoopRequest =
+  private final TorqueCurrentFOC focRequest = new TorqueCurrentFOC(0.0);
+  private final VoltageOut voltageRequest = new VoltageOut(0.0);
+  private final MotionMagicVelocityTorqueCurrentFOC closedLoopRequest =
       new MotionMagicVelocityTorqueCurrentFOC(0.0);
 
-  private final TorqueCurrentFOC rightFOCRequest = new TorqueCurrentFOC(0.0);
-  private final VoltageOut rightVoltageRequest = new VoltageOut(0.0);
-  private final MotionMagicVelocityTorqueCurrentFOC rightClosedLoopRequest =
-      new MotionMagicVelocityTorqueCurrentFOC(0.0);
+  public ShooterIOTalonFX(ShooterSide side) {
+    this.side = side;
 
-  public ShooterIOTalonFX() {
+    final int motorID =
+        side == ShooterSide.Left
+            ? JsonConstants.canConstants.shooterLeftMotorID
+            : JsonConstants.canConstants.shooterRightMotorID;
+
     // Configure motors
-    leftMotor =
-        new TalonFX(
-            JsonConstants.canConstants.shooterLeftMotorID,
-            JsonConstants.shooterConstants.CANBusName);
-    rightMotor =
-        new TalonFX(
-            JsonConstants.canConstants.shooterRightMotorID,
-            JsonConstants.shooterConstants.CANBusName);
+    motor = new TalonFX(motorID, JsonConstants.shooterConstants.CANBusName);
 
     talonFXConfigs = JsonConstants.shooterConstants.baseTalonFXConfigs;
-    applyConfigsToMotors();
 
-    // Create left status signals
-    leftMotorVelocity = leftMotor.getRotorVelocity();
-    leftMotorAcceleration = leftMotor.getAcceleration();
-    leftMotorVoltage = leftMotor.getMotorVoltage();
-    leftMotorClosedLoopOutput = leftMotor.getClosedLoopOutput();
-    leftMotorSupplyCurrent = leftMotor.getSupplyCurrent();
-    leftMotorStatorCurrent = leftMotor.getStatorCurrent();
-    leftMotorTemperature = leftMotor.getDeviceTemp();
+    InvertedValue motorInvert =
+        side == ShooterSide.Left
+            ? JsonConstants.shooterConstants.leftMotorInverted
+            : JsonConstants.shooterConstants.rightMotorInverted;
 
-    // Create right status signals
-    rightMotorVelocity = rightMotor.getRotorVelocity();
-    rightMotorAcceleration = rightMotor.getAcceleration();
-    rightMotorVoltage = rightMotor.getMotorVoltage();
-    rightMotorClosedLoopOutput = rightMotor.getClosedLoopOutput();
-    rightMotorSupplyCurrent = rightMotor.getSupplyCurrent();
-    rightMotorStatorCurrent = rightMotor.getStatorCurrent();
-    rightMotorTemperature = rightMotor.getDeviceTemp();
+    talonFXConfigs.MotorOutput.Inverted = motorInvert;
+
+    applyMotorConfig();
+
+    // Create status signals
+    motorVelocity = motor.getRotorVelocity();
+    motorAcceleration = motor.getAcceleration();
+    motorVoltage = motor.getMotorVoltage();
+    motorClosedLoopOutput = motor.getClosedLoopOutput();
+    motorSupplyCurrent = motor.getSupplyCurrent();
+    motorStatorCurrent = motor.getStatorCurrent();
 
     // Configure status signal updates
     BaseStatusSignal.setUpdateFrequencyForAll(
         JsonConstants.canConstants.updateFrequency,
-        leftMotorVelocity,
-        leftMotorAcceleration,
-        leftMotorVoltage,
-        leftMotorClosedLoopOutput,
-        leftMotorSupplyCurrent,
-        leftMotorStatorCurrent,
-        leftMotorTemperature,
-        rightMotorVelocity,
-        rightMotorAcceleration,
-        rightMotorVoltage,
-        rightMotorClosedLoopOutput,
-        rightMotorSupplyCurrent,
-        rightMotorStatorCurrent,
-        rightMotorTemperature);
+        motorVelocity,
+        motorAcceleration,
+        motorVoltage,
+        motorClosedLoopOutput,
+        motorSupplyCurrent,
+        motorStatorCurrent);
 
     // Only update the signals configured above, and reduce all frequencies to the configured values
-    ParentDevice.optimizeBusUtilizationForAll(leftMotor, rightMotor);
+    ParentDevice.optimizeBusUtilizationForAll(motor);
   }
 
-  /**
-   * Apply the current talonFXConfigs to the motors, updating the motor inverts individually before
-   * applying
-   */
-  private void applyConfigsToMotors() {
-    talonFXConfigs.MotorOutput.withInverted(JsonConstants.shooterConstants.leftMotorInverted);
+  /** Apply the current talonFXConfigs to the motor, trying to re-apply until it succeeds */
+  private void applyMotorConfig() {
     PhoenixUtil.tryUntilOk(
         JsonConstants.shooterConstants.maxConfigApplyAttempts,
         () ->
-            leftMotor
-                .getConfigurator()
-                .apply(talonFXConfigs, JsonConstants.shooterConstants.configApplyTimeoutSeconds));
-
-    talonFXConfigs.MotorOutput.withInverted(JsonConstants.shooterConstants.rightMotorInverted);
-    PhoenixUtil.tryUntilOk(
-        JsonConstants.shooterConstants.maxConfigApplyAttempts,
-        () ->
-            rightMotor
+            motor
                 .getConfigurator()
                 .apply(talonFXConfigs, JsonConstants.shooterConstants.configApplyTimeoutSeconds));
   }
 
   @Override
   public void updateInputs(ShooterInputs inputs) {
-    var leftStatus =
+    StatusCode status =
         BaseStatusSignal.refreshAll(
-            leftMotorVelocity,
-            leftMotorAcceleration,
-            leftMotorVoltage,
-            leftMotorClosedLoopOutput,
-            leftMotorSupplyCurrent,
-            leftMotorStatorCurrent,
-            leftMotorTemperature);
+            motorVelocity,
+            motorAcceleration,
+            motorVoltage,
+            motorClosedLoopOutput,
+            motorSupplyCurrent,
+            motorStatorCurrent);
 
-    var rightStatus =
-        BaseStatusSignal.refreshAll(
-            rightMotorVelocity,
-            rightMotorAcceleration,
-            rightMotorVoltage,
-            rightMotorClosedLoopOutput,
-            rightMotorSupplyCurrent,
-            rightMotorStatorCurrent,
-            rightMotorTemperature);
+    // Update inputs
+    inputs.motorConnected = connectedDebouncer.calculate(status.isOK());
+    inputs.motorVelocity.mut_replace(motorVelocity.getValue());
+    inputs.motorAcceleration.mut_replace(motorAcceleration.getValue());
+    inputs.motorAppliedVolts.mut_replace(motorVoltage.getValue());
+    inputs.motorSupplyCurrent.mut_replace(motorSupplyCurrent.getValue());
+    inputs.motorStatorCurrent.mut_replace(motorStatorCurrent.getValue());
 
-    // Update left inputs
-    inputs.leftMotorConnected = leftConnectedDebouncer.calculate(leftStatus.isOK());
-    inputs.leftMotorVelocity.mut_replace(leftMotorVelocity.getValue());
-    inputs.leftMotorAcceleration.mut_replace(leftMotorAcceleration.getValue());
-    inputs.leftMotorAppliedVolts.mut_replace(leftMotorVoltage.getValue());
-    inputs.leftMotorClosedLoopOutput = leftMotorClosedLoopOutput.getValueAsDouble();
-    inputs.leftMotorSupplyCurrent.mut_replace(leftMotorSupplyCurrent.getValue());
-    inputs.leftMotorStatorCurrent.mut_replace(leftMotorStatorCurrent.getValue());
-    inputs.leftMotorTemp.mut_replace(leftMotorTemperature.getValue());
+    // Do extra logging
+    Logger.recordOutput(
+        "shooter/closedLoopOutput" + side.name(), motorClosedLoopOutput.getValueAsDouble());
 
-    if (!leftStatus.isOK()) {
-      System.err.println("Left shooter motor had bad status: " + leftStatus);
+    if (!status.isOK()) {
+      System.err.println(side.name() + " shooter motor had bad status: " + status);
     }
 
     Logger.recordOutput(
-        "scoring/shooter/leftOutputStatus", leftMotor.getMotorOutputStatus().getValue());
-
-    // Update right inputs
-    inputs.rightMotorConnected = rightConnectedDebouncer.calculate(rightStatus.isOK());
-    inputs.rightMotorVelocity.mut_replace(rightMotorVelocity.getValue());
-    inputs.rightMotorAcceleration.mut_replace(rightMotorAcceleration.getValue());
-    inputs.rightMotorAppliedVolts.mut_replace(rightMotorVoltage.getValue());
-    inputs.rightMotorClosedLoopOutput = rightMotorClosedLoopOutput.getValueAsDouble();
-    inputs.rightMotorSupplyCurrent.mut_replace(rightMotorSupplyCurrent.getValue());
-    inputs.rightMotorStatorCurrent.mut_replace(rightMotorStatorCurrent.getValue());
-    inputs.rightMotorTemp.mut_replace(rightMotorTemperature.getValue());
-
-    Logger.recordOutput(
-        "scoring/shooter/rightOutputStatus", rightMotor.getMotorOutputStatus().getValue());
-
-    if (!rightStatus.isOK()) {
-      System.err.println("Right shooter motor had bad status: " + rightStatus);
-    }
+        "scoring/shooter/outputStatus" + side.name(), motor.getMotorOutputStatus().getValue());
   }
 
   @Override
-  public void runOpenLoop(Current leftTorqueCurrent, Current rightTorqueCurrent) {
-    leftMotor.setControl(leftFOCRequest.withOutput(leftTorqueCurrent));
-    rightMotor.setControl(rightFOCRequest.withOutput(rightTorqueCurrent));
-    Logger.recordOutput("scoring/shooter/lastOutputCommand", "TorqueCurrent");
+  public void runOpenLoop(Current torqueCurrent) {
+    motor.setControl(focRequest.withOutput(torqueCurrent));
+    // TODO: Decide if this level of logging is good or necessary
+    Logger.recordOutput("scoring/shooter/lastOutputCommand" + side.name(), "TorqueCurrent");
   }
 
   @Override
-  public void runOpenLoop(Voltage leftVoltage, Voltage rightVoltage) {
-    leftMotor.setControl(leftVoltageRequest.withOutput(leftVoltage));
-    rightMotor.setControl(rightVoltageRequest.withOutput(rightVoltage));
-    Logger.recordOutput("scoring/shooter/lastOutputCommand", "Voltage");
+  public void runOpenLoop(Voltage voltage) {
+    motor.setControl(voltageRequest.withOutput(voltage));
+    Logger.recordOutput("scoring/shooter/lastOutputCommand" + side.name(), "Voltage");
   }
 
   @Override
   public void stop() {
-    leftMotor.stopMotor();
-    rightMotor.stopMotor();
+    motor.stopMotor();
   }
 
   @Override
-  public void runSpeeds(ShooterSpeeds speeds) {
-    leftMotor.setControl(leftClosedLoopRequest.withVelocity(speeds.leftSpeed()));
-    rightMotor.setControl(rightClosedLoopRequest.withVelocity(speeds.rightSpeed()));
-    Logger.recordOutput("scoring/shooter/lastOutputCommand", "Speeds");
+  public void runSpeed(AngularVelocity speed) {
+    motor.setControl(closedLoopRequest.withVelocity(speed));
+
+    Logger.recordOutput("scoring/shooter/lastOutputCommand" + side.name(), "Speed");
   }
 
   @Override
@@ -227,7 +162,7 @@ public class ShooterIOTalonFX implements ShooterIO {
     talonFXConfigs.Slot0.kI = kI;
     talonFXConfigs.Slot0.kD = kD;
 
-    applyConfigsToMotors();
+    applyMotorConfig();
   }
 
   @Override
@@ -236,7 +171,7 @@ public class ShooterIOTalonFX implements ShooterIO {
     talonFXConfigs.Slot0.kV = kV;
     talonFXConfigs.Slot0.kA = kA;
 
-    applyConfigsToMotors();
+    applyMotorConfig();
   }
 
   @Override
@@ -244,6 +179,6 @@ public class ShooterIOTalonFX implements ShooterIO {
     talonFXConfigs.MotorOutput.NeutralMode =
         brakeEnabled ? NeutralModeValue.Brake : NeutralModeValue.Coast;
 
-    applyConfigsToMotors();
+    applyMotorConfig();
   }
 }

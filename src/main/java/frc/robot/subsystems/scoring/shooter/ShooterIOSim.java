@@ -7,7 +7,6 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 
 import com.ctre.phoenix6.signals.InvertedValue;
-import com.ctre.phoenix6.sim.ChassisReference;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
@@ -18,17 +17,9 @@ import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 import frc.robot.constants.JsonConstants;
 
 public class ShooterIOSim extends ShooterIOTalonFX {
-  private TalonFXSimState leftMotorSimState;
-  private TalonFXSimState rightMotorSimState;
+  private TalonFXSimState motorSimState;
 
   private FlywheelSim leftSim =
-      new FlywheelSim(
-          LinearSystemId.createFlywheelSystem(
-              DCMotor.getKrakenX60Foc(1),
-              JsonConstants.shooterConstantsSim.momentOfInertia.in(KilogramSquareMeters),
-              JsonConstants.shooterConstants.gearing),
-          DCMotor.getKrakenX60Foc(1));
-  private FlywheelSim rightSim =
       new FlywheelSim(
           LinearSystemId.createFlywheelSystem(
               DCMotor.getKrakenX60Foc(1),
@@ -38,12 +29,10 @@ public class ShooterIOSim extends ShooterIOTalonFX {
 
   private Timer deltaTimer = new Timer();
 
-  public ShooterIOSim() {
-    leftMotorSimState = leftMotor.getSimState();
-    rightMotorSimState = rightMotor.getSimState();
+  public ShooterIOSim(ShooterSide side) {
+    super(side);
 
-    leftMotorSimState.Orientation = ChassisReference.Clockwise_Positive;
-    rightMotorSimState.Orientation = ChassisReference.CounterClockwise_Positive;
+    motorSimState = motor.getSimState();
 
     deltaTimer.restart();
   }
@@ -60,8 +49,8 @@ public class ShooterIOSim extends ShooterIOTalonFX {
     double deltaTime = deltaTimer.get();
     deltaTimer.restart();
 
-    // Update left sim
-    var leftMotorVoltage = leftMotorSimState.getMotorVoltage();
+    // Update sim
+    var leftMotorVoltage = motorSimState.getMotorVoltage();
     leftSim.setInput(leftMotorVoltage);
     leftSim.update(deltaTime);
 
@@ -84,36 +73,8 @@ public class ShooterIOSim extends ShooterIOTalonFX {
       accelCache.mut_times(-1.0);
     }
 
-    leftMotorSimState.setRotorVelocity(velocityCache.in(RotationsPerSecond));
-    leftMotorSimState.setRotorAcceleration(accelCache.in(RotationsPerSecondPerSecond));
-
-    // Update right sim
-    var rightMotorVoltage = rightMotorSimState.getMotorVoltage();
-    rightSim.setInput(rightMotorVoltage);
-    rightSim.update(deltaTime);
-
-    // Gearing = Output : Input
-    // Flywheel Speed = Motor Speed * Gearing, therefore:
-    // Motor Speed = Flywheel Speed / Gearing
-    velocityCache.mut_replace(
-        rightSim.getAngularVelocityRadPerSec() / JsonConstants.shooterConstants.gearing,
-        RadiansPerSecond);
-
-    // Get the value as a double instead of as an
-    // AngularAcceleration to avoid creating a new measure every
-    // cycle
-    accelCache.mut_replace(
-        rightSim.getAngularAccelerationRadPerSecSq() / JsonConstants.shooterConstants.gearing,
-        RadiansPerSecondPerSecond);
-
-    if (JsonConstants.shooterConstants.rightMotorInverted
-        == InvertedValue.CounterClockwise_Positive) {
-      velocityCache.mut_times(-1.0);
-      accelCache.mut_times(-1.0);
-    }
-
-    rightMotorSimState.setRotorVelocity(velocityCache.in(RotationsPerSecond));
-    rightMotorSimState.setRotorAcceleration(accelCache.in(RotationsPerSecondPerSecond));
+    motorSimState.setRotorVelocity(velocityCache.in(RotationsPerSecond));
+    motorSimState.setRotorAcceleration(accelCache.in(RotationsPerSecondPerSecond));
   }
 
   @Override

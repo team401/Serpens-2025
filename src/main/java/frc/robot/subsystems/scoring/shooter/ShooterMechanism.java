@@ -19,8 +19,10 @@ public class ShooterMechanism {
   private static final ShooterSpeeds ZERO_SPEEDS =
       new ShooterSpeeds(RotationsPerSecond.zero(), RotationsPerSecond.zero());
 
-  private final ShooterIO io;
-  private ShooterInputsAutoLogged inputs = new ShooterInputsAutoLogged();
+  private final ShooterIO leftIO;
+  private final ShooterIO rightIO;
+  private ShooterInputsAutoLogged leftInputs = new ShooterInputsAutoLogged();
+  private ShooterInputsAutoLogged rightInputs = new ShooterInputsAutoLogged();
 
   /** The last set shooter speeds */
   @AutoLogOutput(key = "scoring/shooter/goalSpeeds")
@@ -74,8 +76,9 @@ public class ShooterMechanism {
   private LoggedTunableNumber shooterRightTargetRPM =
       new LoggedTunableNumber("ShooterTunables/RightTargetRPM", 0.0);
 
-  public ShooterMechanism(ShooterIO shooterIO) {
-    this.io = shooterIO;
+  public ShooterMechanism(ShooterIO leftShooterIO, ShooterIO rightShooterIO) {
+    this.leftIO = leftShooterIO;
+    this.rightIO = rightShooterIO;
   }
 
   /**
@@ -83,8 +86,11 @@ public class ShooterMechanism {
    * automatically.
    */
   public void periodic() {
-    io.updateInputs(inputs);
-    Logger.processInputs("scoring/shooter/inputs", inputs);
+    leftIO.updateInputs(leftInputs);
+    rightIO.updateInputs(rightInputs);
+
+    Logger.processInputs("scoring/shooter/leftInputs", leftInputs);
+    Logger.processInputs("scoring/shooter/rightInputs", rightInputs);
   }
 
   /**
@@ -97,7 +103,9 @@ public class ShooterMechanism {
         LoggedTunableNumber.ifChanged(
             hashCode(),
             (currents) -> {
-              io.runOpenLoop(Amps.of(currents[0]), Amps.of(currents[1]));
+              leftIO.runOpenLoop(Amps.of(currents[0]));
+              rightIO.runOpenLoop(Amps.of(currents[1]));
+
               outputMode = ShooterOutputMode.Current;
             },
             shooterLeftManualAmps,
@@ -108,7 +116,9 @@ public class ShooterMechanism {
         LoggedTunableNumber.ifChanged(
             hashCode(),
             (voltages) -> {
-              io.runOpenLoop(Volts.of(voltages[0]), Volts.of(voltages[1]));
+              leftIO.runOpenLoop(Volts.of(voltages[0]));
+              rightIO.runOpenLoop(Volts.of(voltages[1]));
+
               outputMode = ShooterOutputMode.Voltage;
             },
             shooterLeftManualVolts,
@@ -119,7 +129,8 @@ public class ShooterMechanism {
         LoggedTunableNumber.ifChanged(
             hashCode(),
             (pid) -> {
-              io.setPID(pid[0], pid[1], pid[2]);
+              leftIO.setPID(pid[0], pid[1], pid[2]);
+              rightIO.setPID(pid[0], pid[1], pid[2]);
             },
             shooterKP,
             shooterKI,
@@ -127,7 +138,8 @@ public class ShooterMechanism {
         LoggedTunableNumber.ifChanged(
             hashCode(),
             (ff) -> {
-              io.setFFSVA(ff[0], ff[1], ff[2]);
+              leftIO.setFFSVA(ff[0], ff[1], ff[2]);
+              rightIO.setFFSVA(ff[0], ff[1], ff[2]);
             },
             shooterKS,
             shooterKV,
@@ -157,13 +169,17 @@ public class ShooterMechanism {
    * @param speeds The set of speeds to run the shooter at
    */
   public void runSpeeds(ShooterSpeeds speeds) {
-    io.runSpeeds(speeds);
+    leftIO.runSpeed(speeds.leftSpeed);
+    rightIO.runSpeed(speeds.rightSpeed);
+
     outputMode = ShooterOutputMode.ClosedLoop;
   }
 
   /** Stop the shooter wheels, setting their goal speeds to zero */
   public void stop() {
-    io.stop();
+    leftIO.stop();
+    rightIO.stop();
+
     outputMode = ShooterOutputMode.Stop;
   }
 
@@ -179,11 +195,11 @@ public class ShooterMechanism {
 
     boolean leftReady =
         goalSpeeds.leftSpeed.isNear(
-            inputs.leftMotorVelocity,
+            leftInputs.motorVelocity,
             JsonConstants.shooterConstants.shooterVelocityEpsilonFraction);
     boolean rightReady =
         goalSpeeds.rightSpeed.isNear(
-            inputs.rightMotorVelocity,
+            rightInputs.motorVelocity,
             JsonConstants.shooterConstants.shooterVelocityEpsilonFraction);
 
     Logger.recordOutput("scoring/shooter/leftReady", leftReady);
@@ -196,7 +212,11 @@ public class ShooterMechanism {
     return shooterReady;
   }
 
-  public final ShooterInputs getInputs() {
-    return inputs;
+  public final ShooterInputs getLeftInputs() {
+    return leftInputs;
+  }
+
+  public final ShooterInputs getRightInputs() {
+    return rightInputs;
   }
 }
