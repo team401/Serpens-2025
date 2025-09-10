@@ -127,6 +127,7 @@ public class ShooterIOTalonFX implements ShooterIO {
       System.err.println(side.name() + " shooter motor had bad status: " + status);
     }
 
+    // Update output status logging
     Logger.recordOutput(
         "scoring/shooter/outputStatus" + side.name(), motor.getMotorOutputStatus().getValue());
   }
