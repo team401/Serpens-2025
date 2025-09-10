@@ -20,7 +20,7 @@ import org.littletonrobotics.junction.Logger;
  * <ul>
  *   <li>Uses closed-loop TorqueCurrentFOC control
  */
-public class IntakeMechanism {
+public class IntakeArmMechanism {
   IntakeArmIO io;
   IntakeArmInputsAutoLogged inputs = new IntakeArmInputsAutoLogged();
   IntakeArmOutputsAutoLogged outputs = new IntakeArmOutputsAutoLogged();
@@ -47,7 +47,7 @@ public class IntakeMechanism {
   LoggedTunableNumber intakeArmTuningSetpointRotations;
   LoggedTunableNumber intakeArmTuningOverrideVolts;
 
-  public IntakeMechanism(IntakeArmIO io) {
+  public IntakeArmMechanism(IntakeArmIO io) {
     intakeArmkP =
         new LoggedTunableNumber(
             "IntakeArmTunables/intakeArmkP", IntakeConstants.synced.getObject().intakeArmKP);
@@ -103,8 +103,8 @@ public class IntakeMechanism {
     io.updateInputs(inputs);
     io.applyOutputs(outputs);
 
-    Logger.processInputs("IntakeArm/inputs", inputs);
-    Logger.processInputs("IntakeArm/outputs", outputs);
+    Logger.processInputs("Intake/Arm/inputs", inputs);
+    Logger.processInputs("Intake/Arm/outputs", outputs);
   }
 
   public void setBrakeMode(boolean brake) {

@@ -8,12 +8,18 @@ import edu.wpi.first.units.measure.Frequency;
 import edu.wpi.first.wpilibj.Filesystem;
 import frc.robot.constants.subsystems.scoring.ScoringFeatureFlags;
 import frc.robot.constants.subsystems.scoring.ShooterConstants;
+import frc.robot.constants.subsystems.intake.IntakeConstants;
 
 public class JsonConstants {
   public static void loadConstants() {
     EnvironmentHandler.getEnvironmentHandler(
         Filesystem.getDeployDirectory().toPath().resolve("constants/config.json").toString());
-
+    IntakeConstants.synced.saveData();
+    IntakeConstants.Sim.synced.saveData();
+    CANConstants.synced.saveData();
+    IntakeConstants.synced.loadData();
+    IntakeConstants.Sim.synced.loadData();
+    CANConstants.synced.loadData();
     // Add type adapters for AngularVelocity and Frequency, since these don't exist in coppercore
     // yet.
     JSONConverter.jsonMap.put(AngularVelocity.class, JSONMeasure.class);
@@ -39,6 +45,9 @@ public class JsonConstants {
   }
 
   public static FeatureFlags featureFlags;
+  public static IntakeConstants intakeConstants;
+  public static IntakeConstants.Sim intakeConstantsSim;
+  public static CANConstants canConstants;
   public static CANConstants canConstants;
   public static RedFieldLocations redFieldLocations;
   public static BlueFieldLocations blueFieldLocations;

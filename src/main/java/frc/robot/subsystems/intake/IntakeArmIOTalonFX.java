@@ -31,7 +31,6 @@ import edu.wpi.first.units.measure.MutAngle;
 import edu.wpi.first.units.measure.Per;
 import edu.wpi.first.units.measure.Voltage;
 import frc.robot.constants.subsystems.intake.IntakeConstants;
-
 import org.littletonrobotics.junction.Logger;
 
 public class IntakeArmIOTalonFX implements IntakeArmIO {
@@ -64,8 +63,7 @@ public class IntakeArmIOTalonFX implements IntakeArmIO {
 
   public IntakeArmIOTalonFX() {
     // Initialize TalonFXs  and CANcoders with their correct IDs
-    intakeArmMotor =
-        new TalonFX(IntakeConstants.synced.getObject().intakeArmMotorId, "canivore");
+    intakeArmMotor = new TalonFX(IntakeConstants.synced.getObject().intakeArmMotorId, "canivore");
 
     intakeArmEncoder =
         new CANcoder(IntakeConstants.synced.getObject().intakeArmEncoderID, "canivore");
@@ -182,7 +180,7 @@ public class IntakeArmIOTalonFX implements IntakeArmIO {
               (intakeArmMotor.getClosedLoopReference().getValue()));
 
           Logger.recordOutput(
-              "intakeArm/referenceSlope",
+              "IntakeArm/referenceSlope",
               intakeArmMotor.getClosedLoopReferenceSlope().getValueAsDouble());
           outputs.intakeArmAppliedVolts.mut_replace(intakeArmMotor.getMotorVoltage().getValue());
           outputs.intakeArmClosedLoopOutput =

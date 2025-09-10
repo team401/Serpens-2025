@@ -1,4 +1,5 @@
-package frc.robot.constants.subsystems.intake; // NOTE: This should be changed if you keep your constants in a
+package frc.robot.constants.subsystems.intake; // NOTE: This should be changed if you keep your
+// constants in a
 // separate package from your code
 
 import static edu.wpi.first.units.Units.Amps;
@@ -6,7 +7,14 @@ import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 
+import com.ctre.phoenix6.configs.ClosedLoopGeneralConfigs;
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import com.ctre.phoenix6.configs.MotionMagicConfigs;
+import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import coppercore.parameter_tools.json.JSONExclude;
 import coppercore.parameter_tools.json.JSONSync;
@@ -27,6 +35,8 @@ public final class IntakeConstants {
           EnvironmentHandler.getEnvironmentHandler().getEnvironmentPathProvider(),
           new JSONSyncConfigBuilder().setPrettyPrinting(true).build());
 
+  public final String CANBusName = "canivore";
+
   public final Integer intakeArmMotorId = 1; // TODO: Replace placeholder CAN ID
   public final Integer intakeRollerMotorId = 2; // TODO: Replace placeholder CAN ID
 
@@ -34,6 +44,8 @@ public final class IntakeConstants {
    * What point in the sensor's range the discontinuity occurs. Results in a range of [1-x, x). For
    * example, a value of 1 gives a range of [0.0, 1).
    */
+  public final InvertedValue rollerInverted = InvertedValue.Clockwise_Positive;
+
   public final Double intakeArmEncoderDiscontinuityPoint = 1.0;
 
   public final Angle intakeArmEncoderMagnetOffset = Radians.of(0.0);
@@ -87,6 +99,39 @@ public final class IntakeConstants {
       Rotations.of(0.0); // TODO: Replace placeholder constraints
   public final Angle intakeArmMaxMaxAngle = Rotations.of(1.0);
 
+  public int maxConfigApplyAttempts = 5;
+
+  public final Double configApplyTimeoutSeconds = 0.25;
+
+  public final TalonFXConfiguration baseTalonFXConfigs =
+      new TalonFXConfiguration()
+          .withCurrentLimits(
+              new CurrentLimitsConfigs()
+                  .withSupplyCurrentLimit(Amps.of(40.0))
+                  .withSupplyCurrentLimitEnable(true)
+                  .withStatorCurrentLimit(Amps.of(40.0))
+                  .withStatorCurrentLimitEnable(true))
+          .withClosedLoopGeneral(new ClosedLoopGeneralConfigs().withContinuousWrap(true))
+          .withSlot0(
+              new Slot0Configs()
+                  .withKP(0.0) // TODO: Tune gains in sim and real life
+                  .withKI(0.0)
+                  .withKD(0.0)
+                  .withKS(0.0)
+                  .withKG(0.0)
+                  .withKV(0.0)
+                  .withKA(0.0))
+          .withMotionMagic(
+              new MotionMagicConfigs()
+                  .withMotionMagicAcceleration(RotationsPerSecondPerSecond.of(10)));
+
+  /**
+   * The reduction of rotor to drum, as a ratio of output to input
+   *
+   * <p>To get a ratio of output : input, we take input gear teeth : output gear teeth
+   */
+  public final Double gearing = 1.0 / 1.0; // TODO: real gearing
+
   public static final class Sim {
     @JSONExclude
     public static final JSONSync<IntakeConstants.Sim> synced =
@@ -106,6 +151,10 @@ public final class IntakeConstants {
 
     @JSONExclude
     public final MomentOfInertia intakeArmMomentOfInertia =
+        KilogramSquareMeters.of(0.05); // TODO: Replace placeholder moment of inertia
+
+    @JSONExclude
+    public final MomentOfInertia intakeRollerMomentOfInertia =
         KilogramSquareMeters.of(0.05); // TODO: Replace placeholder moment of inertia
 
     public final Distance intakeArmArmLength =
