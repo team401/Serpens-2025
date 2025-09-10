@@ -17,7 +17,6 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import frc.robot.constants.SimConstants;
 import frc.robot.constants.subsystems.intake.IntakeConstants;
-
 import org.littletonrobotics.junction.Logger;
 
 public class IntakeArmIOSim extends IntakeArmIOTalonFX {
@@ -29,10 +28,7 @@ public class IntakeArmIOSim extends IntakeArmIOTalonFX {
       new SingleJointedArmSim(
           DCMotor.getKrakenX60Foc(1),
           IntakeConstants.synced.getObject().intakeArmReduction,
-          IntakeConstants.Sim.synced
-              .getObject()
-              .intakeArmMomentOfInertia
-              .in(KilogramSquareMeters),
+          IntakeConstants.Sim.synced.getObject().intakeArmMomentOfInertia.in(KilogramSquareMeters),
           IntakeConstants.Sim.synced.getObject().intakeArmArmLength.in(Meters),
           IntakeConstants.Sim.synced.getObject().intakeArmMinAngle.in(Radians),
           IntakeConstants.Sim.synced.getObject().intakeArmMaxAngle.in(Radians),
@@ -64,8 +60,7 @@ public class IntakeArmIOSim extends IntakeArmIOTalonFX {
                 .intakeArmEncoderMagnetOffset)); // Subtract the magnet offset since it's 0 in sim
     intakeArmEncoderSimState.setVelocity(intakeArmVelocity);
 
-    Angle rotorDiffAngle =
-        diffAngle.times(IntakeConstants.synced.getObject().intakeArmReduction);
+    Angle rotorDiffAngle = diffAngle.times(IntakeConstants.synced.getObject().intakeArmReduction);
     AngularVelocity rotorVelocity =
         intakeArmVelocity.times(IntakeConstants.synced.getObject().intakeArmReduction);
     intakeArmMotorSimState.addRotorPosition(rotorDiffAngle);
@@ -74,7 +69,7 @@ public class IntakeArmIOSim extends IntakeArmIOTalonFX {
 
     intakeArmSim.setInputVoltage(intakeArmMotorSimState.getMotorVoltage());
 
-    Logger.recordOutput("intakeArmSim/position", intakeArmAngle.in(Radians));
+    Logger.recordOutput("IntakeArmSim/position", intakeArmAngle.in(Radians));
 
     intakeArmSim.update(SimConstants.simDeltaTime.in(Seconds));
   }

@@ -26,6 +26,7 @@ import frc.robot.commands.DriveCommands;
 import frc.robot.constants.FeatureFlags;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.intake.IntakeSubsystem;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -37,7 +38,7 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 public class RobotContainer {
   // Subsystems
   private Drive drive = null;
-
+  private IntakeSubsystem intake = null;
   // Controller
   private final CommandXboxController controller = new CommandXboxController(0);
 
@@ -79,6 +80,9 @@ public class RobotContainer {
   public void configureSubsystems() {
     if (FeatureFlags.synced.getObject().runDrive) {
       drive = InitSubsystems.initDrive();
+    }
+    if (FeatureFlags.synced.getObject().runIntake) {
+      intake = InitSubsystems.initIntake();
     }
   }
   /**
