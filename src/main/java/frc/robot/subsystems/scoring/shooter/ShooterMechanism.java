@@ -91,6 +91,10 @@ public class ShooterMechanism {
 
     Logger.processInputs("scoring/shooter/leftInputs", leftInputs);
     Logger.processInputs("scoring/shooter/rightInputs", rightInputs);
+
+    Logger.recordOutput("scoring/shooter/leftRPM", leftInputs.motorVelocity.in(RotationsPerMinute));
+    Logger.recordOutput(
+        "scoring/shooter/rightRPM", rightInputs.motorVelocity.in(RotationsPerMinute));
   }
 
   /**

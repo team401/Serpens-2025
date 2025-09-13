@@ -84,7 +84,12 @@ public final class ShooterConstants {
    *
    * <p>To get a ratio of output : input, we take input gear teeth : output gear teeth
    */
-  public final Double gearing = 22.0 / 60.0;
+  public final Double gearing = 1.0;
+  //   public final Double gearing = 22.0 / 60.0;
+  // As of 2025-9-13T13:38-4:00, I have isolated the sim issues to gearing-related problems
+  // Therefore, the gearing is set to 1.0 to eliminate variables. After more experimentation is
+  // done, and after Design releases the final gear ratio, this constant can be updated and the sim
+  // can be re-tuned.
 
   public static class Sim {
     @JSONExclude
