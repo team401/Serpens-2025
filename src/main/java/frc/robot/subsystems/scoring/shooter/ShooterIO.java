@@ -5,6 +5,7 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
+import edu.wpi.first.units.measure.AngularAcceleration;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.MutAngularAcceleration;
@@ -88,6 +89,13 @@ public interface ShooterIO {
    * @param kA Acceleration gain: output required to induce a certain acceleration from the wheels
    */
   public default void setFFSVA(double kS, double kV, double kA) {}
+
+  /**
+   * Set the max acceleration of the shooter motion profile
+   *
+   * @param maxAcceleration Maximum acceleration which will be provided to MotionMagic
+   */
+  public default void setMaxProfileAcceleration(AngularAcceleration maxAcceleration) {}
 
   /**
    * Set whether the shooter rollers should coast or brake when no output is applied

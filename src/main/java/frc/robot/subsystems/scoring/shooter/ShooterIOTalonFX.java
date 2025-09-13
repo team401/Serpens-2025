@@ -1,5 +1,6 @@
 package frc.robot.subsystems.scoring.shooter;
 
+import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
 
 import com.ctre.phoenix6.BaseStatusSignal;
@@ -171,6 +172,14 @@ public class ShooterIOTalonFX implements ShooterIO {
     talonFXConfigs.Slot0.kS = kS;
     talonFXConfigs.Slot0.kV = kV;
     talonFXConfigs.Slot0.kA = kA;
+
+    applyMotorConfig();
+  }
+
+  @Override
+  public void setMaxProfileAcceleration(AngularAcceleration maxAcceleration) {
+    talonFXConfigs.MotionMagic.MotionMagicAcceleration =
+        maxAcceleration.in(RotationsPerSecondPerSecond);
 
     applyMotorConfig();
   }

@@ -2,6 +2,7 @@ package frc.robot.subsystems.scoring.shooter;
 
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 import static frc.robot.util.CustomUnits.RotationsPerMinute;
 
@@ -59,6 +60,12 @@ public class ShooterMechanism {
   private LoggedTunableNumber shooterKA =
       new LoggedTunableNumber(
           "ShooterTunables/KA", JsonConstants.shooterConstants.baseTalonFXConfigs.Slot0.kA);
+
+  // Tunable profile
+  private LoggedTunableNumber shooterMaxAcceleration =
+      new LoggedTunableNumber(
+          "ShooterTunables/maxAcceleration",
+          JsonConstants.shooterConstants.baseTalonFXConfigs.MotionMagic.MotionMagicAcceleration);
 
   // Tunable outputs
   private LoggedTunableNumber shooterLeftManualVolts =
@@ -158,6 +165,14 @@ public class ShooterMechanism {
             },
             shooterLeftTargetRPM,
             shooterRightTargetRPM);
+
+        LoggedTunableNumber.ifChanged(
+            hashCode(),
+            (accel) -> {
+              leftIO.setMaxProfileAcceleration(RotationsPerSecondPerSecond.of(accel[0]));
+              rightIO.setMaxProfileAcceleration(RotationsPerSecondPerSecond.of(accel[0]));
+            },
+            shooterMaxAcceleration);
       }
 
       default -> {}

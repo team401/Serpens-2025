@@ -43,8 +43,9 @@ public class ShooterIOSim extends ShooterIOTalonFX {
 
     // Update sim
     var motorVoltage = motorSimState.getMotorVoltage();
-    // TODO: Figure out why this value is always logged as 0.0
-    Logger.recordOutput("scoring/shooter/sim/motorVoltage", motorVoltage);
+    // TODO: Figure out why this method returns 0 on 1 of every 2 of the calls
+    // Logger.recordOutput("scoring/shooter/sim/motorVoltage", motorVoltage);
+    // System.out.println("scoring/shooter/sim/motorVoltage: " + motorVoltage);
 
     flywheelSim.setInput(motorVoltage);
     flywheelSim.update(deltaTime);

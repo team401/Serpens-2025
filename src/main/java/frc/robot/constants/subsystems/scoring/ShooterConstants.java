@@ -27,7 +27,6 @@ public final class ShooterConstants {
 
   public final String CANBusName = "canivore";
 
-  // TODO: Use JSONSync
   /**
    * What fraction of the total angular velocity must the shooter velocity be within in order for
    * the shooter to be considered "ready?"
@@ -59,16 +58,16 @@ public final class ShooterConstants {
           .withClosedLoopGeneral(new ClosedLoopGeneralConfigs().withContinuousWrap(true))
           .withSlot0(
               new Slot0Configs()
-                  .withKP(0.0) // TODO: Tune gains in sim and real life
+                  .withKP(100.0) // TODO: Tune gains in real life
                   .withKI(0.0)
                   .withKD(0.0)
                   .withKS(0.0)
                   .withKG(0.0)
-                  .withKV(0.0)
-                  .withKA(0.0))
+                  .withKV(0.01)
+                  .withKA(10.0))
           .withMotionMagic(
               new MotionMagicConfigs()
-                  .withMotionMagicAcceleration(RotationsPerSecondPerSecond.of(10)));
+                  .withMotionMagicAcceleration(RotationsPerSecondPerSecond.of(80)));
 
   public final InvertedValue leftMotorInverted = InvertedValue.Clockwise_Positive;
   public final InvertedValue rightMotorInverted = InvertedValue.CounterClockwise_Positive;
