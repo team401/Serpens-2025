@@ -3,7 +3,6 @@ package frc.robot.subsystems.scoring.shooter;
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.Seconds;
 
-import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
@@ -25,8 +24,7 @@ public class ShooterIOSim extends ShooterIOTalonFX {
 
   private Timer deltaTimer = new Timer();
 
-  // Store invert factor and gearing to
-  private final int invertFactor;
+  // Store gearing to make it easier to type
   private final double gearing;
 
   public ShooterIOSim(ShooterSide side) {
@@ -35,17 +33,6 @@ public class ShooterIOSim extends ShooterIOTalonFX {
     motorSimState = motor.getSimState();
 
     deltaTimer.restart();
-
-    InvertedValue motorInvert =
-        side == ShooterSide.Left
-            ? JsonConstants.shooterConstants.leftMotorInverted
-            : JsonConstants.shooterConstants.rightMotorInverted;
-
-    if (motorInvert == InvertedValue.CounterClockwise_Positive) {
-      invertFactor = 1;
-    } else {
-      invertFactor = -1;
-    }
 
     gearing = JsonConstants.shooterConstants.gearing;
   }
@@ -56,6 +43,7 @@ public class ShooterIOSim extends ShooterIOTalonFX {
 
     // Update sim
     var motorVoltage = motorSimState.getMotorVoltage();
+    // TODO: Figure out why this value is always logged as 0.0
     Logger.recordOutput("scoring/shooter/sim/motorVoltage", motorVoltage);
 
     flywheelSim.setInput(motorVoltage);
@@ -66,11 +54,11 @@ public class ShooterIOSim extends ShooterIOTalonFX {
     // Gearing = Output : Input
     // Flywheel Speed = Motor Speed * Gearing, therefore:
     // Motor Speed = Flywheel Speed / Gearing
-    // The same math holds for position 
-    motorSimState.addRotorPosition(flywheelSim.getAngularVelocity().times(Seconds.of(deltaTime)));
-    motorSimState.setRotorVelocity(flywheelSim.getAngularVelocity().times(invertFactor / gearing));
-    motorSimState.setRotorAcceleration(
-        flywheelSim.getAngularAcceleration().times(invertFactor / gearing));
+    // The same math holds for position
+    motorSimState.addRotorPosition(
+        flywheelSim.getAngularVelocity().times(Seconds.of(deltaTime)).div(gearing));
+    motorSimState.setRotorVelocity(flywheelSim.getAngularVelocity().div(gearing));
+    motorSimState.setRotorAcceleration(flywheelSim.getAngularAcceleration().div(gearing));
   }
 
   @Override
