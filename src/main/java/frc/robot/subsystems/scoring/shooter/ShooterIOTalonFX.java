@@ -38,6 +38,7 @@ public class ShooterIOTalonFX implements ShooterIO {
   private final StatusSignal<AngularAcceleration> motorAcceleration;
   private final StatusSignal<Voltage> motorVoltage;
   private final StatusSignal<Double> motorClosedLoopOutput;
+  private final StatusSignal<Double> motorClosedLoopReference;
   private final StatusSignal<Current> motorSupplyCurrent;
   private final StatusSignal<Current> motorStatorCurrent;
 
@@ -74,6 +75,7 @@ public class ShooterIOTalonFX implements ShooterIO {
     motorAcceleration = motor.getAcceleration();
     motorVoltage = motor.getMotorVoltage();
     motorClosedLoopOutput = motor.getClosedLoopOutput();
+    motorClosedLoopReference = motor.getClosedLoopReference();
     motorSupplyCurrent = motor.getSupplyCurrent();
     motorStatorCurrent = motor.getStatorCurrent();
 
@@ -84,6 +86,7 @@ public class ShooterIOTalonFX implements ShooterIO {
         motorAcceleration,
         motorVoltage,
         motorClosedLoopOutput,
+        motorClosedLoopReference,
         motorSupplyCurrent,
         motorStatorCurrent);
 
@@ -109,6 +112,7 @@ public class ShooterIOTalonFX implements ShooterIO {
             motorAcceleration,
             motorVoltage,
             motorClosedLoopOutput,
+            motorClosedLoopReference,
             motorSupplyCurrent,
             motorStatorCurrent);
 
@@ -123,6 +127,8 @@ public class ShooterIOTalonFX implements ShooterIO {
     // Do extra logging
     Logger.recordOutput(
         "shooter/closedLoopOutput" + side.name(), motorClosedLoopOutput.getValueAsDouble());
+    Logger.recordOutput(
+        "shooter/closedLoopReference" + side.name(), motorClosedLoopReference.getValueAsDouble());
 
     if (!status.isOK()) {
       System.err.println(side.name() + " shooter motor had bad status: " + status);
