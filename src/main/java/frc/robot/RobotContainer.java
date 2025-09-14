@@ -23,7 +23,6 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
-import frc.robot.constants.FeatureFlags;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.scoring.ScoringSubsystem;
@@ -81,12 +80,16 @@ public class RobotContainer {
   }
 
   public void configureSubsystems() {
-    if (FeatureFlags.synced.getObject().runDrive) {
+    if (JsonConstants.featureFlags.runDrive) {
       drive = InitSubsystems.initDrive();
     }
 
-    if (FeatureFlags.synced.getObject().runScoring) {
+    if (JsonConstants.featureFlags.runScoring) {
       scoring = InitSubsystems.initScoring();
+
+      if (JsonConstants.featureFlags.runDrive) {
+        scoring.initializeShooterPoseSupplier(() -> drive.getPose());
+      }
     }
   }
   /**

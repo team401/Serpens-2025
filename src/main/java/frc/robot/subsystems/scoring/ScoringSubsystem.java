@@ -1,8 +1,10 @@
 package frc.robot.subsystems.scoring;
 
 import coppercore.wpilib_interface.MonitoredSubsystem;
+import edu.wpi.first.math.geometry.Pose2d;
 import frc.robot.subsystems.scoring.shooter.ShooterMechanism;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 public class ScoringSubsystem extends MonitoredSubsystem {
   private static Optional<ScoringSubsystem> instance = Optional.empty();
@@ -47,6 +49,16 @@ public class ScoringSubsystem extends MonitoredSubsystem {
     instance = Optional.of(createdInstance);
 
     return createdInstance;
+  }
+
+  /**
+   * Initalize the Shooter mechanism's drive pose supplier to use for pose-based shots
+   *
+   * @param newPoseSupplier A Supplier for a Pose2d that supplies the drivetrain's current odometry
+   *     pose
+   */
+  public void initializeShooterPoseSupplier(Supplier<Pose2d> newPoseSupplier) {
+    shooter.initializePoseSupplier(newPoseSupplier);
   }
 
   /**

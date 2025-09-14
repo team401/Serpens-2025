@@ -46,20 +46,20 @@ public interface ShooterIO {
   public default void updateInputs(ShooterInputs inputs) {}
 
   /**
-   * Run the Shooter flywheels with a certain torque current applied to each motor
+   * Run the Shooter flywheel with a certain torque current applied to the motor
    *
-   * @param torqueCurrent Torque current to apply to the left motor
+   * @param torqueCurrent Torque current to apply to the motor
    */
   public default void runOpenLoop(Current torqueCurrent) {}
 
   /**
-   * Run the Shooter flywheels with a certain voltage applied to each motor
+   * Run the Shooter flywheel with a certain voltage applied to the motor
    *
-   * @param voltage Voltage to apply to the left motor
+   * @param voltage Voltage to apply to the motor
    */
   public default void runOpenLoop(Voltage voltage) {}
 
-  /** Stop both Shooter flywheels */
+  /** Stop the Shooter flywheel */
   public default void stop() {}
 
   /**

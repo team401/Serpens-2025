@@ -2,6 +2,7 @@ package frc.robot.constants.subsystems.scoring;
 
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
+import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 
 import com.ctre.phoenix6.configs.ClosedLoopGeneralConfigs;
@@ -14,7 +15,9 @@ import coppercore.parameter_tools.json.JSONExclude;
 import coppercore.parameter_tools.json.JSONSync;
 import coppercore.parameter_tools.json.JSONSyncConfigBuilder;
 import coppercore.parameter_tools.path_provider.EnvironmentHandler;
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.units.measure.MomentOfInertia;
+import frc.robot.subsystems.scoring.shooter.ShooterMechanism.ShooterSpeeds;
 
 public final class ShooterConstants {
   @JSONExclude
@@ -90,6 +93,88 @@ public final class ShooterConstants {
   // done, and after Design releases the final gear ratio, this constant can be updated and the sim
   // can be re-tuned.
 
+  // JSON Excluded for now since JSONSync doesn't support RPM yet
+  @JSONExclude
+  public final ShooterSpeeds defaultShot =
+      new ShooterSpeeds(RPM.of(100), RPM.of(50)); // TODO: Tune this in real life!
+
+  /** The set of distances for the mapping of distance to shooter speeds */
+  public final double[] shooterMapDistances = {2.0, 10.0};
+  /**
+   * The set of speeds for the close-side of the shooter in the mapping of distance to shooter
+   * speeds
+   *
+   * <p>For example, if the robot is shooting left, this will become the left speed
+   */
+  public final double[] shooterMapCloseSpeedsRPM = {100.0, 2000.0};
+  /**
+   * The set of speeds for the far-side of the shooter in the mapping of distance to shooter speeds
+   *
+   * <p>For example, if the robot is shooting left, this will become the right speed
+   */
+  public final double[] shooterMapFarSpeedsRPM = {150.0, 3000.0};
+
+  /**
+   * Mapping of shot distance to RPM of the close motor.
+   *
+   * <p>`initializeSpeedMaps()` MUST be called AFTER `synced.loadData()` but BEFORE this map is
+   * read.
+   */
+  @JSONExclude
+  public final InterpolatingDoubleTreeMap distanceToCloseRPM = new InterpolatingDoubleTreeMap();
+
+  /**
+   * The furthest distance in the shooter map.
+   *
+   * <p>`initializeSpeedMaps()` MUST be called AFTER `synced.loadData()` but BEFORE this value is
+   * read.
+   */
+  @JSONExclude public Double maxShotDistance = 0.0;
+
+  /**
+   * The closest that the robot may be to the barge line while still shooting.
+   *
+   * <p>This value should be tuned such that the robot won't shoot straight up and hit the underside
+   * of the barge.
+   */
+  public final Double minShotDistance = 1.0;
+
+  /**
+   * Mapping of shot distance to RPM of the far motor.
+   *
+   * <p>`initializeSpeedMaps()` MUST be called AFTER `synced.loadData()` but BEFORE this map is
+   * read.
+   */
+  @JSONExclude
+  public final InterpolatingDoubleTreeMap distanceToFarRPM = new InterpolatingDoubleTreeMap();
+
+  /**
+   * Propagate the distanceToCloseRPM and distanceToFarRPM maps with the values from the double
+   * arrays loaded from JSON.
+   *
+   * <p>This method MUST be called AFTER `synced.loadData()` but BEFORE the maps or max distance are
+   * read.
+   */
+  public void initializeSpeedMaps() {
+    if (shooterMapDistances.length != shooterMapCloseSpeedsRPM.length
+        || shooterMapDistances.length != shooterMapFarSpeedsRPM.length) {
+      throw new Error("Shooter map arrays had differing lengths");
+    }
+
+    for (int i = 0; i < shooterMapDistances.length; i++) {
+      double distance = shooterMapDistances[i];
+      double closeRPM = shooterMapCloseSpeedsRPM[i];
+      double farRPM = shooterMapFarSpeedsRPM[i];
+
+      distanceToCloseRPM.put(distance, closeRPM);
+      distanceToFarRPM.put(distance, farRPM);
+
+      if (distance > maxShotDistance) {
+        maxShotDistance = distance;
+      }
+    }
+  }
+
   public static class Sim {
     @JSONExclude
     public static final JSONSync<ShooterConstants.Sim> synced =
@@ -100,6 +185,6 @@ public final class ShooterConstants {
             new JSONSyncConfigBuilder().setPrettyPrinting(true).build());
 
     // 12.181 LbIn^2 = 0.00356 KgM^2
-    public final MomentOfInertia momentOfInertia = KilogramSquareMeters.of(0.00356);
+    @JSONExclude public final MomentOfInertia momentOfInertia = KilogramSquareMeters.of(0.00356);
   }
 }
