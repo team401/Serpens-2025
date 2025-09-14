@@ -7,15 +7,72 @@ import static edu.wpi.first.units.Units.Volts;
 import static frc.robot.util.CustomUnits.RotationsPerMinute;
 
 import coppercore.parameter_tools.LoggedTunableNumber;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.util.struct.Struct;
+import edu.wpi.first.util.struct.StructSerializable;
 import frc.robot.TestModeManager;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.scoring.shooter.ShooterIO.ShooterInputs;
+import java.nio.ByteBuffer;
+import java.util.function.Supplier;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class ShooterMechanism {
-  public record ShooterSpeeds(AngularVelocity leftSpeed, AngularVelocity rightSpeed) {}
+  /**
+   * A set of Speeds for the shooter wheels.
+   *
+   * <p>This class is StructSerializable so it can be logged by AdvantageKit. It logs its values in
+   * RPM.
+   */
+  public static class ShooterSpeeds implements StructSerializable {
+    public final AngularVelocity leftSpeed;
+    public final AngularVelocity rightSpeed;
+
+    public static final Struct<ShooterSpeeds> struct =
+        new Struct<>() {
+          @Override
+          public int getSize() {
+            return Double.BYTES * 2;
+          }
+
+          @Override
+          public Class<ShooterSpeeds> getTypeClass() {
+            return ShooterSpeeds.class;
+          }
+
+          @Override
+          public String getTypeName() {
+            return "ShooterSpeeds";
+          }
+
+          @Override
+          public String getSchema() {
+            return "double leftRPM;double rightRPM;";
+          }
+
+          @Override
+          public void pack(ByteBuffer bb, ShooterSpeeds speeds) {
+            bb.putDouble(speeds.leftSpeed.in(RotationsPerMinute));
+            bb.putDouble(speeds.rightSpeed.in(RotationsPerMinute));
+          }
+
+          @Override
+          public ShooterSpeeds unpack(ByteBuffer bb) {
+            double leftRPM = bb.getDouble();
+            double rightRPM = bb.getDouble();
+
+            return new ShooterSpeeds(
+                RotationsPerMinute.of(leftRPM), RotationsPerMinute.of(rightRPM));
+          }
+        };
+
+    public ShooterSpeeds(AngularVelocity leftSpeed, AngularVelocity rightSpeed) {
+      this.leftSpeed = leftSpeed;
+      this.rightSpeed = rightSpeed;
+    }
+  }
 
   private static final ShooterSpeeds ZERO_SPEEDS =
       new ShooterSpeeds(RotationsPerSecond.zero(), RotationsPerSecond.zero());
