@@ -13,9 +13,13 @@ The shooter provides two main methods for control, which should be called by (an
 
 Stops the shooter motors.
 
-=== Run Speeds
+=== Warm Up
 
-Runs the shooter motors at the speeds passed to the methods.
+Based on whether or not pose-based shooting is currently enabled, either calculate the currently accurate set of speeds or run the shooter at the predefined fallback set of speeds.
+
+This method will actually configure the shooter's "current action" to be warming up. This means that it will run the calculations automatically in every periodic loop, so even if `warmUp` isn't called periodically it will still behave correctly.
+
+This was previously `runSpeeds` but it was replaced since the determination of shooter speeds is the responsibility of the Shooter itself, not any other subsystem and therefore placing that code anywhere else would cause unnecessary clutter.
 
 === Tuning Periodic
 

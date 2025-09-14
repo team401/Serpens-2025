@@ -1,0 +1,12 @@
+{
+  "shooterLeftMotorID": 13,
+  "shooterRightMotorID": 14,
+  "updateFrequency": {
+    "value": 50.0,
+    "unit": "Hertz"
+  },
+  "deviceConnectedDebounceTime": {
+    "value": 0.5,
+    "unit": "Second"
+  }
+}
