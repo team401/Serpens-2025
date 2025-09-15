@@ -1,0 +1,5 @@
+{
+  "maxLinearSpeed": 3.0,
+  "maxAngularSpeed": 4.0,
+  "joystickDeadband": 0.1
+}

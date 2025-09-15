@@ -3,7 +3,6 @@ package frc.robot.constants;
 import coppercore.parameter_tools.json.JSONExclude;
 import coppercore.parameter_tools.json.JSONSync;
 import coppercore.parameter_tools.json.JSONSyncConfigBuilder;
-import coppercore.parameter_tools.path_provider.EnvironmentHandler;
 
 public final class FeatureFlags {
   @JSONExclude
@@ -11,7 +10,7 @@ public final class FeatureFlags {
       new JSONSync<FeatureFlags>(
           new FeatureFlags(),
           "FeatureFlags.json",
-          EnvironmentHandler.getEnvironmentHandler().getEnvironmentPathProvider(),
+          JsonConstants.getPathProvider(),
           new JSONSyncConfigBuilder().setPrettyPrinting(true).build());
 
   public final Boolean runDrive = true;
