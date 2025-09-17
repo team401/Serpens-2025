@@ -520,20 +520,21 @@ public class ShooterMechanism {
 
     Logger.recordOutput("scoring/shooter/unclampedShotDistance", shotDistance);
 
-    if (shotDistance > JsonConstants.shooterConstants.maxShotDistance) {
+    if (shotDistance > JsonConstants.shooterConstants.maxShotDistanceMeters) {
       isShotAttainable = false;
 
-      shotDistance = JsonConstants.shooterConstants.maxShotDistance;
-    } else if (shotDistance < JsonConstants.shooterConstants.minShotDistance) {
+      shotDistance = JsonConstants.shooterConstants.maxShotDistanceMeters;
+    } else if (shotDistance < JsonConstants.shooterConstants.minShotDistanceMeters) {
       isShotAttainable = false;
 
-      shotDistance = JsonConstants.shooterConstants.minShotDistance;
+      shotDistance = JsonConstants.shooterConstants.minShotDistanceMeters;
     }
 
     Logger.recordOutput("scoring/shooter/clampedShotDistance", shotDistance);
 
-    double closeSpeedRPM = JsonConstants.shooterConstants.distanceToCloseRPM.get(shotDistance);
-    double farSpeedRPM = JsonConstants.shooterConstants.distanceToFarRPM.get(shotDistance);
+    double closeSpeedRPM =
+        JsonConstants.shooterConstants.distanceMetersToCloseRPM.get(shotDistance);
+    double farSpeedRPM = JsonConstants.shooterConstants.distanceMetersToFarRPM.get(shotDistance);
 
     AngularVelocity leftSpeed;
     AngularVelocity rightSpeed;

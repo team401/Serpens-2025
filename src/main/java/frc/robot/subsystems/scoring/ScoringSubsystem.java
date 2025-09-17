@@ -52,7 +52,7 @@ public class ScoringSubsystem extends MonitoredSubsystem {
   }
 
   /**
-   * Initalize the Shooter mechanism's drive pose supplier to use for pose-based shots
+   * Initialize the Shooter mechanism's drive pose supplier to use for pose-based shots
    *
    * @param newPoseSupplier A Supplier for a Pose2d that supplies the drivetrain's current odometry
    *     pose

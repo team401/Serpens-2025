@@ -88,6 +88,8 @@ public class RobotContainer {
       scoring = InitSubsystems.initScoring();
 
       if (JsonConstants.featureFlags.runDrive) {
+        // It can be assumed that drive != null here because drive is initialized before the scoring
+        // subsystem
         scoring.initializeShooterPoseSupplier(() -> drive.getPose());
       }
     }

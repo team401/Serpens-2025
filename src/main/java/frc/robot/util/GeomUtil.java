@@ -11,8 +11,9 @@ public class GeomUtil {
    *
    * @param a The first translation (a), representing a 2d vector
    * @param b The second translation (b), representing a 2d vector
-   * @return If the vectors are collinear, 0. If b is clockwise from a, a negative value. If b is
-   *     counterclockwise from a, a positive value.
+   * @return If the vectors are collinear, zero or a number close to zero (Check if abs(result) <
+   *     1e-9 to be safe). If b is clockwise from a, a negative value. If b is counterclockwise from
+   *     a, a positive value.
    */
   public static double cross(Translation2d a, Translation2d b) {
     // TODO: move this method to coppercore geometry
