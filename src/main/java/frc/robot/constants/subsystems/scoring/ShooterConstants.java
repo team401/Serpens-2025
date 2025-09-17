@@ -99,7 +99,7 @@ public final class ShooterConstants {
       new ShooterSpeeds(RPM.of(100), RPM.of(50)); // TODO: Tune this in real life!
 
   /** The set of distances for the mapping of distance to shooter speeds */
-  public final double[] shooterMapDistances = {2.0, 10.0};
+  public final double[] shooterMapDistancesMeters = {2.0, 10.0};
   /**
    * The set of speeds for the close-side of the shooter in the mapping of distance to shooter
    * speeds
@@ -121,7 +121,8 @@ public final class ShooterConstants {
    * read.
    */
   @JSONExclude
-  public final InterpolatingDoubleTreeMap distanceToCloseRPM = new InterpolatingDoubleTreeMap();
+  public final InterpolatingDoubleTreeMap distanceMetersToCloseRPM =
+      new InterpolatingDoubleTreeMap();
 
   /**
    * The furthest distance in the shooter map.
@@ -129,7 +130,7 @@ public final class ShooterConstants {
    * <p>`initializeSpeedMaps()` MUST be called AFTER `synced.loadData()` but BEFORE this value is
    * read.
    */
-  @JSONExclude public Double maxShotDistance = 0.0;
+  @JSONExclude public Double maxShotDistanceMeters = 0.0;
 
   /**
    * The closest that the robot may be to the barge line while still shooting.
@@ -137,7 +138,7 @@ public final class ShooterConstants {
    * <p>This value should be tuned such that the robot won't shoot straight up and hit the underside
    * of the barge.
    */
-  public final Double minShotDistance = 1.0;
+  public final Double minShotDistanceMeters = 1.0;
 
   /**
    * Mapping of shot distance to RPM of the far motor.
@@ -146,7 +147,7 @@ public final class ShooterConstants {
    * read.
    */
   @JSONExclude
-  public final InterpolatingDoubleTreeMap distanceToFarRPM = new InterpolatingDoubleTreeMap();
+  public final InterpolatingDoubleTreeMap distanceMetersToFarRPM = new InterpolatingDoubleTreeMap();
 
   /**
    * Propagate the distanceToCloseRPM and distanceToFarRPM maps with the values from the double
@@ -155,22 +156,22 @@ public final class ShooterConstants {
    * <p>This method MUST be called AFTER `synced.loadData()` but BEFORE the maps or max distance are
    * read.
    */
-  public void initializeSpeedMaps() {
-    if (shooterMapDistances.length != shooterMapCloseSpeedsRPM.length
-        || shooterMapDistances.length != shooterMapFarSpeedsRPM.length) {
+  public void initializeDistanceToRPMMaps() {
+    if (shooterMapDistancesMeters.length != shooterMapCloseSpeedsRPM.length
+        || shooterMapDistancesMeters.length != shooterMapFarSpeedsRPM.length) {
       throw new Error("Shooter map arrays had differing lengths");
     }
 
-    for (int i = 0; i < shooterMapDistances.length; i++) {
-      double distance = shooterMapDistances[i];
+    for (int i = 0; i < shooterMapDistancesMeters.length; i++) {
+      double distance = shooterMapDistancesMeters[i];
       double closeRPM = shooterMapCloseSpeedsRPM[i];
       double farRPM = shooterMapFarSpeedsRPM[i];
 
-      distanceToCloseRPM.put(distance, closeRPM);
-      distanceToFarRPM.put(distance, farRPM);
+      distanceMetersToCloseRPM.put(distance, closeRPM);
+      distanceMetersToFarRPM.put(distance, farRPM);
 
-      if (distance > maxShotDistance) {
-        maxShotDistance = distance;
+      if (distance > maxShotDistanceMeters) {
+        maxShotDistanceMeters = distance;
       }
     }
   }

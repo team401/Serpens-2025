@@ -135,7 +135,7 @@
   "maxConfigApplyAttempts": 5,
   "configApplyTimeoutSeconds": 0.25,
   "gearing": 1.0,
-  "shooterMapDistances": [
+  "shooterMapDistancesMeters": [
     2.0,
     10.0
   ],
@@ -147,5 +147,5 @@
     150.0,
     3000.0
   ],
-  "minShotDistance": 1.0
+  "minShotDistanceMeters": 1.0
 }
