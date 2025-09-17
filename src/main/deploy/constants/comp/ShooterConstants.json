@@ -146,6 +146,5 @@
   "shooterMapFarSpeedsRPM": [
     150.0,
     3000.0
-  ],
-  "minShotDistanceMeters": 1.0
+  ]
 }

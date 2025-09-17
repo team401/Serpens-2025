@@ -125,20 +125,24 @@ public final class ShooterConstants {
       new InterpolatingDoubleTreeMap();
 
   /**
+   * The closest that the robot may be to the barge line while still shooting.
+   *
+   * <p>This value is automatically determined from the lowest distance in shooterMapDistancesMeters
+   * and should be tuned such that the robot won't shoot straight up and hit the underside of the
+   * barge.
+   *
+   * <p>`initializeSpeedMaps()` MUST be called AFTER `synced.loadData()` but BEFORE this value is
+   * read.
+   */
+  @JSONExclude public Double minShotDistanceMeters = Double.MAX_VALUE;
+
+  /**
    * The furthest distance in the shooter map.
    *
    * <p>`initializeSpeedMaps()` MUST be called AFTER `synced.loadData()` but BEFORE this value is
    * read.
    */
   @JSONExclude public Double maxShotDistanceMeters = 0.0;
-
-  /**
-   * The closest that the robot may be to the barge line while still shooting.
-   *
-   * <p>This value should be tuned such that the robot won't shoot straight up and hit the underside
-   * of the barge.
-   */
-  public final Double minShotDistanceMeters = 1.0;
 
   /**
    * Mapping of shot distance to RPM of the far motor.
@@ -169,6 +173,10 @@ public final class ShooterConstants {
 
       distanceMetersToCloseRPM.put(distance, closeRPM);
       distanceMetersToFarRPM.put(distance, farRPM);
+
+      if (distance < minShotDistanceMeters) {
+        minShotDistanceMeters = distance;
+      }
 
       if (distance > maxShotDistanceMeters) {
         maxShotDistanceMeters = distance;
