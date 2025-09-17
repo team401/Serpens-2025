@@ -69,7 +69,7 @@ public class IntakeArmIOSim extends IntakeArmIOTalonFX {
 
     intakeArmSim.setInputVoltage(intakeArmMotorSimState.getMotorVoltage());
 
-    Logger.recordOutput("IntakeArmSim/position", intakeArmAngle.in(Radians));
+    Logger.recordOutput("IntakeSim/Arm/position", intakeArmAngle.in(Radians));
 
     intakeArmSim.update(SimConstants.simDeltaTime.in(Seconds));
   }

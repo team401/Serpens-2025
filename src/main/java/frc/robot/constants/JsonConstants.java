@@ -17,6 +17,9 @@ public class JsonConstants {
     FeatureFlags.synced.loadData();
 
     featureFlags = FeatureFlags.synced.getObject();
+    canConstants = CANConstants.synced.getObject();
+    intakeConstants = IntakeConstants.synced.getObject();
+    intakeConstantsSim = IntakeConstants.Sim.synced.getObject();
   }
 
   public static FeatureFlags featureFlags;

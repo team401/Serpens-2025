@@ -1,0 +1,8 @@
+{
+  "shooterLeftMotorID": 13,
+  "shooterRightMotorID": 14,
+  "deviceConnectedDebounceTime": {
+    "value": 0.5,
+    "unit": "Second"
+  }
+}

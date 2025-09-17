@@ -22,7 +22,8 @@ public class CANConstants {
   public final Integer shooterLeftMotorID = 13; // TODO: Real motor IDs
   public final Integer shooterRightMotorID = 14;
 
-  public final Frequency updateFrequency = Hertz.of(50.0);
+  @JSONExclude
+  public final Frequency updateFrequency = Hertz.of(50.0); // TODO: change when new coppercore
 
   public final Time deviceConnectedDebounceTime = Seconds.of(0.5);
 }

@@ -24,7 +24,6 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.MomentOfInertia;
-import edu.wpi.first.wpilibj.Filesystem;
 
 public final class IntakeConstants {
   @JSONExclude
@@ -130,17 +129,15 @@ public final class IntakeConstants {
    *
    * <p>To get a ratio of output : input, we take input gear teeth : output gear teeth
    */
-  public final Double gearing = 1.0 / 1.0; // TODO: real gearing
+  public final Double gearing = 2.0 / 1.0;
 
   public static final class Sim {
     @JSONExclude
     public static final JSONSync<IntakeConstants.Sim> synced =
         new JSONSync<IntakeConstants.Sim>(
             new IntakeConstants.Sim(),
-            Filesystem.getDeployDirectory()
-                .toPath()
-                .resolve("constants/IntakeArmConstants.Sim.json")
-                .toString(),
+            "IntakeArmConstants.Sim.json",
+            EnvironmentHandler.getEnvironmentHandler().getEnvironmentPathProvider(),
             new JSONSyncConfigBuilder().build());
 
     /** Standard deviation passed to sim for the position measurement */

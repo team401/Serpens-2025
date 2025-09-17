@@ -180,7 +180,7 @@ public class IntakeArmIOTalonFX implements IntakeArmIO {
               (intakeArmMotor.getClosedLoopReference().getValue()));
 
           Logger.recordOutput(
-              "IntakeArm/referenceSlope",
+              "Intake/Arm/referenceSlope",
               intakeArmMotor.getClosedLoopReferenceSlope().getValueAsDouble());
           outputs.intakeArmAppliedVolts.mut_replace(intakeArmMotor.getMotorVoltage().getValue());
           outputs.intakeArmClosedLoopOutput =
