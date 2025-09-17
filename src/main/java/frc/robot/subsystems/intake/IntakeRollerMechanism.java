@@ -130,7 +130,7 @@ public class IntakeRollerMechanism {
 
   public void periodic() {
     io.updateInputs(inputs);
-    Logger.processInputs("Intake/rollerInputs", inputs);
+    Logger.processInputs("Intake/Rollers/rollerInputs", inputs);
   }
 
   public void runSpeeds(RollerSpeeds speeds) {

@@ -1,0 +1,168 @@
+{
+  "CANBusName": "canivore",
+  "intakeArmMotorId": 1,
+  "intakeRollerMotorId": 2,
+  "rollerInverted": "Clockwise_Positive",
+  "intakeArmEncoderDiscontinuityPoint": 1.0,
+  "intakeArmEncoderMagnetOffset": {
+    "value": 0.0,
+    "unit": "Radian"
+  },
+  "intakeArmEncoderID": 2,
+  "intakeArmEncoderDirection": "Clockwise_Positive",
+  "intakeArmKP": 0.0,
+  "intakeArmKI": 0.0,
+  "intakeArmKD": 0.0,
+  "intakeArmKS": 0.0,
+  "intakeArmKV": 0.0,
+  "intakeArmKA": 0.0,
+  "intakeArmKG": 0.0,
+  "intakeArmAngularCruiseVelocityRotationsPerSecond": 1.0,
+  "intakeArmMotionMagicExpo_kV": 0.0,
+  "intakeArmMotionMagicExpo_kA": 0.0,
+  "intakeArmStatorCurrentLimit": {
+    "value": 80.0,
+    "unit": "Amp"
+  },
+  "intakeArmReduction": 1.0,
+  "intakeArmMinMinAngle": {
+    "value": 0.0,
+    "unit": "Rotation"
+  },
+  "intakeArmMaxMaxAngle": {
+    "value": 1.0,
+    "unit": "Rotation"
+  },
+  "maxConfigApplyAttempts": 5,
+  "configApplyTimeoutSeconds": 0.25,
+  "baseTalonFXConfigs": {
+    "FutureProofConfigs": true,
+    "MotorOutput": {
+      "Inverted": "CounterClockwise_Positive",
+      "NeutralMode": "Coast",
+      "DutyCycleNeutralDeadband": 0.0,
+      "PeakForwardDutyCycle": 1.0,
+      "PeakReverseDutyCycle": -1.0,
+      "ControlTimesyncFreqHz": 0.0
+    },
+    "CurrentLimits": {
+      "StatorCurrentLimit": 40.0,
+      "StatorCurrentLimitEnable": true,
+      "SupplyCurrentLimit": 40.0,
+      "SupplyCurrentLimitEnable": true,
+      "SupplyCurrentLowerLimit": 40.0,
+      "SupplyCurrentLowerTime": 1.0
+    },
+    "Voltage": {
+      "SupplyVoltageTimeConstant": 0.0,
+      "PeakForwardVoltage": 16.0,
+      "PeakReverseVoltage": -16.0
+    },
+    "TorqueCurrent": {
+      "PeakForwardTorqueCurrent": 800.0,
+      "PeakReverseTorqueCurrent": -800.0,
+      "TorqueNeutralDeadband": 0.0
+    },
+    "Feedback": {
+      "FeedbackRotorOffset": 0.0,
+      "SensorToMechanismRatio": 1.0,
+      "RotorToSensorRatio": 1.0,
+      "FeedbackSensorSource": "RotorSensor",
+      "FeedbackRemoteSensorID": 0,
+      "VelocityFilterTimeConstant": 0.0
+    },
+    "DifferentialSensors": {
+      "DifferentialSensorSource": "Disabled",
+      "DifferentialTalonFXSensorID": 0,
+      "DifferentialRemoteSensorID": 0
+    },
+    "DifferentialConstants": {
+      "PeakDifferentialDutyCycle": 2.0,
+      "PeakDifferentialVoltage": 32.0,
+      "PeakDifferentialTorqueCurrent": 1600.0
+    },
+    "OpenLoopRamps": {
+      "DutyCycleOpenLoopRampPeriod": 0.0,
+      "VoltageOpenLoopRampPeriod": 0.0,
+      "TorqueOpenLoopRampPeriod": 0.0
+    },
+    "ClosedLoopRamps": {
+      "DutyCycleClosedLoopRampPeriod": 0.0,
+      "VoltageClosedLoopRampPeriod": 0.0,
+      "TorqueClosedLoopRampPeriod": 0.0
+    },
+    "HardwareLimitSwitch": {
+      "ForwardLimitType": "NormallyOpen",
+      "ForwardLimitAutosetPositionEnable": false,
+      "ForwardLimitAutosetPositionValue": 0.0,
+      "ForwardLimitEnable": true,
+      "ForwardLimitSource": "LimitSwitchPin",
+      "ForwardLimitRemoteSensorID": 0,
+      "ReverseLimitType": "NormallyOpen",
+      "ReverseLimitAutosetPositionEnable": false,
+      "ReverseLimitAutosetPositionValue": 0.0,
+      "ReverseLimitEnable": true,
+      "ReverseLimitSource": "LimitSwitchPin",
+      "ReverseLimitRemoteSensorID": 0
+    },
+    "Audio": {
+      "BeepOnBoot": true,
+      "BeepOnConfig": true,
+      "AllowMusicDurDisable": false
+    },
+    "SoftwareLimitSwitch": {
+      "ForwardSoftLimitEnable": false,
+      "ReverseSoftLimitEnable": false,
+      "ForwardSoftLimitThreshold": 0.0,
+      "ReverseSoftLimitThreshold": 0.0
+    },
+    "MotionMagic": {
+      "MotionMagicCruiseVelocity": 0.0,
+      "MotionMagicAcceleration": 10.0,
+      "MotionMagicJerk": 0.0,
+      "MotionMagicExpo_kV": 0.12,
+      "MotionMagicExpo_kA": 0.1
+    },
+    "CustomParams": {
+      "CustomParam0": 0,
+      "CustomParam1": 0
+    },
+    "ClosedLoopGeneral": {
+      "ContinuousWrap": true
+    },
+    "Slot0": {
+      "kP": 0.0,
+      "kI": 0.0,
+      "kD": 0.0,
+      "kS": 0.0,
+      "kV": 0.0,
+      "kA": 0.0,
+      "kG": 0.0,
+      "GravityType": "Elevator_Static",
+      "StaticFeedforwardSign": "UseVelocitySign"
+    },
+    "Slot1": {
+      "kP": 0.0,
+      "kI": 0.0,
+      "kD": 0.0,
+      "kS": 0.0,
+      "kV": 0.0,
+      "kA": 0.0,
+      "kG": 0.0,
+      "GravityType": "Elevator_Static",
+      "StaticFeedforwardSign": "UseVelocitySign"
+    },
+    "Slot2": {
+      "kP": 0.0,
+      "kI": 0.0,
+      "kD": 0.0,
+      "kS": 0.0,
+      "kV": 0.0,
+      "kA": 0.0,
+      "kG": 0.0,
+      "GravityType": "Elevator_Static",
+      "StaticFeedforwardSign": "UseVelocitySign"
+    }
+  },
+  "gearing": 2.0
+}

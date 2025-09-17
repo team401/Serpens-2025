@@ -42,6 +42,9 @@ public class JsonConstants {
     shooterConstantsSim = ShooterConstants.Sim.synced.getObject();
 
     shooterConstants.initializeDistanceToRPMMaps();
+    canConstants = CANConstants.synced.getObject();
+    intakeConstants = IntakeConstants.synced.getObject();
+    intakeConstantsSim = IntakeConstants.Sim.synced.getObject();
   }
 
   public static FeatureFlags featureFlags;

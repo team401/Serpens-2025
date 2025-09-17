@@ -182,7 +182,7 @@ public class IntakeArmMechanism {
   private void updateClampedGoalAngle() {
     clampedGoalAngle.mut_replace(UnitUtils.clampMeasure(goalAngle, minAngle, maxAngle));
 
-    Logger.recordOutput("IntakeArm/clampedGoalAngle", clampedGoalAngle);
+    Logger.recordOutput("Intake/Arm/clampedGoalAngle", clampedGoalAngle);
   }
 
   /**
@@ -195,7 +195,7 @@ public class IntakeArmMechanism {
   public void setGoalAngle(Angle goalAngle) {
     this.goalAngle.mut_replace(goalAngle);
 
-    Logger.recordOutput("IntakeArm/goalAngle", goalAngle);
+    Logger.recordOutput("Intake/Arm/goalAngle", goalAngle);
   }
   /**
    * Sets the minimum and maximum allowed angles that the intakeArm may target.
@@ -231,7 +231,7 @@ public class IntakeArmMechanism {
             IntakeConstants.synced.getObject().intakeArmMinMinAngle,
             IntakeConstants.synced.getObject().intakeArmMaxMaxAngle));
 
-    Logger.recordOutput("IntakeArm/minAngle", minAngle);
+    Logger.recordOutput("Intake/Arm/minAngle", minAngle);
   }
 
   /**
@@ -251,7 +251,7 @@ public class IntakeArmMechanism {
             IntakeConstants.synced.getObject().intakeArmMaxMaxAngle,
             IntakeConstants.synced.getObject().intakeArmMaxMaxAngle));
 
-    Logger.recordOutput("IntakeArm/maxAngle", maxAngle);
+    Logger.recordOutput("Intake/Arm/maxAngle", maxAngle);
   }
 
   /**
