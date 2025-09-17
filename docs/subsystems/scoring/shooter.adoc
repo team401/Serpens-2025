@@ -31,7 +31,7 @@ The shooter will define 3 tuning modes:
 
 === Shooter closed loop tuning
 
-This mode will read PID & FeedForward gains from NetworkTables and use them to control to a setpoint specified for each wheel goal speed (also read from NetworkTables).
+This mode will read PID & FeedForward gains from NetworkTables and use them to control to a setpoint specified for each motor goal speed (also read from NetworkTables).
 
 === Shooter voltage tuning
 
