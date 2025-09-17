@@ -63,7 +63,10 @@ public interface ShooterIO {
   public default void stop() {}
 
   /**
-   * Run the shooter flywheel at a certain speed using Motion Magic Velocity (TorqueCurrentFOC)
+   * Run the shooter motor at a certain speed using Motion Magic Velocity (TorqueCurrentFOC)
+   *
+   * <p>This is a MOTOR speed, not a FLYWHEEL speed. This means that, regardless of gearing,
+   * something like {@code runSpeed(RPM.of(1000))} will cause the motor to target 1000 rpm.
    *
    * @param speed The AngularVelocity to target
    */
