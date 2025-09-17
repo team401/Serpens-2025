@@ -19,6 +19,8 @@ import edu.wpi.first.units.measure.AngularAcceleration;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.Alert.AlertType;
 import frc.robot.constants.JsonConstants;
 import frc.robot.util.PhoenixUtil;
 import org.littletonrobotics.junction.Logger;
@@ -47,6 +49,9 @@ public class ShooterIOTalonFX implements ShooterIO {
   private final VoltageOut voltageRequest = new VoltageOut(0.0);
   private final MotionMagicVelocityTorqueCurrentFOC closedLoopRequest =
       new MotionMagicVelocityTorqueCurrentFOC(0.0);
+
+  // Store an alert to publish if configs fail to apply
+  private final Alert configFailedToApplyAlert;
 
   public ShooterIOTalonFX(ShooterSide side) {
     this.side = side;
@@ -92,16 +97,34 @@ public class ShooterIOTalonFX implements ShooterIO {
 
     // Only update the signals configured above, and reduce all frequencies to the configured values
     ParentDevice.optimizeBusUtilizationForAll(motor);
+
+    // Initialize alert(s) with proper name
+    configFailedToApplyAlert =
+        new Alert(side.name() + " shooter IO failed to apply configs.", AlertType.kError);
+    configFailedToApplyAlert.set(false);
   }
 
-  /** Apply the current talonFXConfigs to the motor, trying to re-apply until it succeeds */
+  /**
+   * Apply the current talonFXConfigs to the motor, trying to re-apply until it succeeds
+   *
+   * <p>If the config fails to apply after all attempts, an alert will be shown and an error will be
+   * printed.
+   */
   private void applyMotorConfig() {
-    PhoenixUtil.tryUntilOk(
-        JsonConstants.shooterConstants.maxConfigApplyAttempts,
-        () ->
-            motor
-                .getConfigurator()
-                .apply(talonFXConfigs, JsonConstants.shooterConstants.configApplyTimeoutSeconds));
+    boolean configApplySucceeded =
+        PhoenixUtil.tryUntilOk(
+            JsonConstants.shooterConstants.maxConfigApplyAttempts,
+            () ->
+                motor
+                    .getConfigurator()
+                    .apply(
+                        talonFXConfigs, JsonConstants.shooterConstants.configApplyTimeoutSeconds));
+
+    if (!configApplySucceeded) {
+      configFailedToApplyAlert.set(true);
+
+      new Exception(configFailedToApplyAlert.getText()).printStackTrace();
+    }
   }
 
   @Override
