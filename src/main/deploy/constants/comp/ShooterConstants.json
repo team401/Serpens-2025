@@ -139,11 +139,11 @@
     2.0,
     10.0
   ],
-  "shooterMapCloseSpeedsRPM": [
+  "shooterMapLeftSpeedsRPM": [
     100.0,
     2000.0
   ],
-  "shooterMapFarSpeedsRPM": [
+  "shooterMapRightSpeedsRPM": [
     150.0,
     3000.0
   ]

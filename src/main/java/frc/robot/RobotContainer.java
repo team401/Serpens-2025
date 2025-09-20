@@ -132,6 +132,10 @@ public class RobotContainer {
                             new Pose2d(drive.getPose().getTranslation(), new Rotation2d())),
                     drive)
                 .ignoringDisable(true));
+
+    if (JsonConstants.featureFlags.runScoring) {
+      InitBindings.initScoringBindings(controller, scoring);
+    }
   }
 
   /**

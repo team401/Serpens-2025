@@ -81,4 +81,24 @@ public class ScoringSubsystem extends MonitoredSubsystem {
   public void testPeriodic() {
     shooter.testPeriodic();
   }
+
+  /**
+   * Warm up the shooter
+   *
+   * <p>This method exists to give bindings a temporary way to make the shooter warm up before the
+   * state machine is implemented.
+   */
+  public void tempWarmup() {
+    shooter.warmUp();
+  }
+
+  /**
+   * Stop the shooter
+   *
+   * <p>This method exists to give bindings a temporary way to make the shooter stop warming up
+   * before the state machine is implemented.
+   */
+  public void tempStopShooter() {
+    shooter.stop();
+  }
 }

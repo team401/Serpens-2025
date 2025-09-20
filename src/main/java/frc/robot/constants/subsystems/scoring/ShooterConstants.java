@@ -101,27 +101,37 @@ public final class ShooterConstants {
   /** The set of distances for the mapping of distance to shooter speeds */
   public final double[] shooterMapDistancesMeters = {2.0, 10.0};
   /**
-   * The set of speeds for the close-side of the shooter in the mapping of distance to shooter
-   * speeds
+   * The set of speeds for the left side of the shooter in the mapping of distance to shooter speeds
    *
    * <p>For example, if the robot is shooting left, this will become the left speed
    */
-  public final double[] shooterMapCloseSpeedsRPM = {100.0, 2000.0};
+  public final double[] shooterMapLeftSpeedsRPM = {100.0, 2000.0};
   /**
-   * The set of speeds for the far-side of the shooter in the mapping of distance to shooter speeds
+   * The set of speeds for the right side of the shooter in the mapping of distance to shooter
+   * speeds
    *
    * <p>For example, if the robot is shooting left, this will become the right speed
    */
-  public final double[] shooterMapFarSpeedsRPM = {150.0, 3000.0};
+  public final double[] shooterMapRightSpeedsRPM = {150.0, 3000.0};
 
   /**
-   * Mapping of shot distance to RPM of the close motor.
+   * Mapping of shot distance to RPM of the left motor.
    *
    * <p>`initializeSpeedMaps()` MUST be called AFTER `synced.loadData()` but BEFORE this map is
    * read.
    */
   @JSONExclude
-  public final InterpolatingDoubleTreeMap distanceMetersToCloseRPM =
+  public final InterpolatingDoubleTreeMap distanceMetersToLeftRPM =
+      new InterpolatingDoubleTreeMap();
+
+  /**
+   * Mapping of shot distance to RPM of the right motor.
+   *
+   * <p>`initializeSpeedMaps()` MUST be called AFTER `synced.loadData()` but BEFORE this map is
+   * read.
+   */
+  @JSONExclude
+  public final InterpolatingDoubleTreeMap distanceMetersToRightRPM =
       new InterpolatingDoubleTreeMap();
 
   /**
@@ -145,34 +155,25 @@ public final class ShooterConstants {
   @JSONExclude public Double maxShotDistanceMeters = 0.0;
 
   /**
-   * Mapping of shot distance to RPM of the far motor.
-   *
-   * <p>`initializeSpeedMaps()` MUST be called AFTER `synced.loadData()` but BEFORE this map is
-   * read.
-   */
-  @JSONExclude
-  public final InterpolatingDoubleTreeMap distanceMetersToFarRPM = new InterpolatingDoubleTreeMap();
-
-  /**
-   * Propagate the distanceToCloseRPM and distanceToFarRPM maps with the values from the double
+   * Propagate the distanceToLeftRPM and distanceToRightRPM maps with the values from the double
    * arrays loaded from JSON.
    *
    * <p>This method MUST be called AFTER `synced.loadData()` but BEFORE the maps or max distance are
    * read.
    */
   public void initializeDistanceToRPMMaps() {
-    if (shooterMapDistancesMeters.length != shooterMapCloseSpeedsRPM.length
-        || shooterMapDistancesMeters.length != shooterMapFarSpeedsRPM.length) {
+    if (shooterMapDistancesMeters.length != shooterMapLeftSpeedsRPM.length
+        || shooterMapDistancesMeters.length != shooterMapRightSpeedsRPM.length) {
       throw new Error("Shooter map arrays had differing lengths");
     }
 
     for (int i = 0; i < shooterMapDistancesMeters.length; i++) {
       double distance = shooterMapDistancesMeters[i];
-      double closeRPM = shooterMapCloseSpeedsRPM[i];
-      double farRPM = shooterMapFarSpeedsRPM[i];
+      double leftRPM = shooterMapLeftSpeedsRPM[i];
+      double rightRPM = shooterMapRightSpeedsRPM[i];
 
-      distanceMetersToCloseRPM.put(distance, closeRPM);
-      distanceMetersToFarRPM.put(distance, farRPM);
+      distanceMetersToLeftRPM.put(distance, leftRPM);
+      distanceMetersToRightRPM.put(distance, rightRPM);
 
       if (distance < minShotDistanceMeters) {
         minShotDistanceMeters = distance;
