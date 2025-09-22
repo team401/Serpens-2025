@@ -545,12 +545,10 @@ public class ShooterMechanism {
 
     boolean leftReady =
         goalSpeeds.leftSpeed.isNear(
-            leftInputs.motorVelocity,
-            JsonConstants.shooterConstants.shooterVelocityEpsilonFraction);
+            leftInputs.motorVelocity, JsonConstants.shooterConstants.shooterVelocityEpsilon);
     boolean rightReady =
         goalSpeeds.rightSpeed.isNear(
-            rightInputs.motorVelocity,
-            JsonConstants.shooterConstants.shooterVelocityEpsilonFraction);
+            rightInputs.motorVelocity, JsonConstants.shooterConstants.shooterVelocityEpsilon);
 
     Logger.recordOutput("scoring/shooter/leftReady", leftReady);
     Logger.recordOutput("scoring/shooter/rightReady", rightReady);

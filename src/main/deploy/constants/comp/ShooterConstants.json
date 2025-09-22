@@ -1,6 +1,9 @@
 {
   "CANBusName": "canivore",
-  "shooterVelocityEpsilonFraction": 0.05,
+  "shooterVelocityEpsilon": {
+    "value": 60.0,
+    "unit": "Rotation per Second"
+  },
   "baseTalonFXConfigs": {
     "FutureProofConfigs": true,
     "MotorOutput": {

@@ -3,6 +3,7 @@ package frc.robot.constants.subsystems.scoring;
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.RPM;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 
 import com.ctre.phoenix6.configs.ClosedLoopGeneralConfigs;
@@ -16,6 +17,7 @@ import coppercore.parameter_tools.json.JSONSync;
 import coppercore.parameter_tools.json.JSONSyncConfigBuilder;
 import coppercore.parameter_tools.path_provider.EnvironmentHandler;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.MomentOfInertia;
 import frc.robot.subsystems.scoring.shooter.ShooterMechanism.ShooterSpeeds;
 
@@ -31,13 +33,13 @@ public final class ShooterConstants {
   public final String CANBusName = "canivore";
 
   /**
-   * What fraction of the total angular velocity must the shooter velocity be within in order for
-   * the shooter to be considered "ready?"
+   * What angular velocity must the shooter velocity be within in order for the shooter to be
+   * considered "ready?"
    *
-   * <p>For example, if this value is 0.05, the shooter wheels must be within +/- 5% of the goal
+   * <p>For example, if this value is 5 rpm, the shooter wheels must be within +/- 5 rpm of the goal
    * speed to shoot.
    */
-  public final Double shooterVelocityEpsilonFraction = 0.05;
+  public final AngularVelocity shooterVelocityEpsilon = RotationsPerSecond.of(60);
 
   /**
    * Base TalonFX configs that will be modified by ShooterIOTalonFX before being applied to the
