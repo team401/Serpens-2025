@@ -63,4 +63,44 @@ public static class IndexerInputs {
   * Updates a IndexerInputs with the current information from sensors and motors
   *
   * <p> Should be called by the IndexerMechanism periodically 
+*/
+  public default void updateInputs(IndexerInputs inputs) {}
+
+
+
+  public default void applyInputs(indexerInputs inputs) {} 
+  /**
+ * set indexer's goal position?
   */
+
+  public default void setIndexerGoalPos(Angle goalPos) {} 
+
+  public default void setPID(double kP, double kI, double kD) {}
+
+    public default void setMaxProfile(
+      AngularVelocity maxVelocity,
+      Per<VoltageUnit, AngularAccelerationUnit> expo_kA,
+      Per<VoltageUnit, AngularVelocityUnit> expo_kV) {}
+
+
+  /** Set feedforward gains for closed-loop control */
+  public default void setFF(double kS, double kV, double kA, double kG) {}
+
+  /** Set whether or not the motors should brake while idle */
+  public default void setBrakeMode(boolean brakeMode) {}
+
+  /** Set the current limits for the indexer motor */
+  public default void setCurrentLimits(CurrentLimitsConfigs limits) {}
+
+  /** Set whether or not the indexer motor should be disabled. */
+  public default void setMotorsDisabled(boolean disabled) {}
+
+  /**
+   * Sets whether or not the indexer is in 'override' mode
+*/
+
+public default void setOverrideMode(boolean override) {}
+
+   public default void setOverrideVoltage(Voltage voltage) {}
+}
+  
