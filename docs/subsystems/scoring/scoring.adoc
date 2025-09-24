@@ -5,7 +5,7 @@
 
 The scoring subsystem contains the xref:shooter.adoc[Shooter] and Indexer.
 
-It may be deemed beneficial that the scoring subsystem also includes the intake, to better coordinate intaking and scoring actions between the intake and the indexer-shooter combination.
+Currently, the scoring subsystem does not include the Intake. However, it may be deemed beneficial that the scoring subsystem also includes the intake, to better coordinate intaking and scoring actions between the intake and the indexer-shooter combination. This decision will be made after the intake is implemented and more work is done on the scoring state machine.
 
 == State Machine
 
@@ -70,20 +70,18 @@ Sets of ShooterSpeeds to aim at the target need to be determined so that the rob
 
 When vision estimates and odometry can be trusted, the ShooterSpeeds can be determined by:
 
-* Checking whether the barge is on the left or the right of the robot (check robot's heading)
+* Find the direction of the shot by taking the robot's heading and turning 90 degrees counter-clockwise, since the robot will always shoot left.
 
-* Depending on which direction the barge is in, find the point of intersection when drawing a line out from that side of the robot to the barge
+* Find the point of intersection when casting a ray out from the left side of the robot to the barge
 
 * If that point is in not our team's side of the barge, scoring is currently impossible. In this case, the best course of action is to find the closest point on the barge to the point found previously that is within our side of the barge and warm up as if shooting at that spot instead. Note that it is vital that the state machine isn't allowed to transition to score even if everything else is ready, since the setpoint won't match an actual scoring location.
 
-* Take the distance to that point and feed it into either (see <<TBD>>):
+* Take the distance to that point and feed it into a map that uses InterplatingDoubleTreeMap from WPILib to map distance to shooter speeds.
 
-** A map that uses InterpolateDouble from coppercore to map distance to shooter speeds. This will most likely be the solution that is used.
-*** Potential challenge: Performance may be poor if we are constantly creating new ShooterSpeeds objects. ShooterSpeeds might be best converted into a class and then given a method to replace itself by interpolating between two values. Then, we could store one ShooterSpeeds object that gets replaced every in periodic with the current output of the map.
+** Potential challenge: Performance may be poor if we are constantly creating new ShooterSpeeds objects. ShooterSpeeds might be best converted into a class and then given a method to replace itself by interpolating between two values. Then, we could store one ShooterSpeeds object that gets replaced every in periodic with the current output of the map.
 
-** A function that automatically generates shooter speeds based on distance using a physics equation. While potentially easier to tune, this method will likely be quite difficult.
 
 [#decisions-tbd,reftext=TBD]
 == Decisions Yet To Be Made
 
-* [ ] Decide on method of converting shooting distance to ShooterSpeeds
+None for now.

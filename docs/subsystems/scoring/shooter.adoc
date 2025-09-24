@@ -27,16 +27,22 @@ This method will read LoggedTunableNumbers for each PID and Feedforward gain. If
 
 == Tuning Modes
 
-The shooter will define 3 tuning modes:
+The shooter has various tuning modes to tune gains and test the system. It is recommended to use Elastic Dashboard to interact with the LoggedTunableNumbers published. The shooter defines 3 tuning modes:
 
 === Shooter closed loop tuning
 
 This mode will read PID & FeedForward gains from NetworkTables and use them to control to a setpoint specified for each motor goal speed (also read from NetworkTables).
 
+Gains will be published and read from NetworkTables at the path `/SmartDashboard/TunableNumbers/ShooterTunables/K[P,I,D,S,V,A]`. The target RPM for closed-loop control of each shooter side is will be published and read from NetworkTables at the paths `/SmartDashboard/TunableNumbers/ShooterTunables/[Left/Right]TargetRPM`. These LoggedTunableNumbers are checked and updated every periodic cycle.
+
 === Shooter voltage tuning
 
 Manually specify a voltage for each shooter wheel via NetworkTables. This is useful for quick testing and prototyping.
 
+Voltage numbers will be published and then continually read from NetworkTables at the paths `/SmartDashboard/TunableNumbers/ShooterTunables/[Left/Right]ManualVolts`. These values will be updated every periodic cycle if changed.
+
 === Shooter current tuning
 
 Manually specify a torque-current for each shooter wheel via NetworkTables. This mode can be used to determine kS gain and quickly test motors.
+
+Voltage numbers will be published and then continually read from NetworkTables at the paths `/SmartDashboard/TunableNumbers/ShooterTunables/[Left/Right]ManualAmps`. These values will be updated every periodic cycle if changed.
