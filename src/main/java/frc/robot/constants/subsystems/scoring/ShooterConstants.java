@@ -38,8 +38,11 @@ public final class ShooterConstants {
    *
    * <p>For example, if this value is 5 rpm, the shooter wheels must be within +/- 5 rpm of the goal
    * speed to shoot.
+   *
+   * <p>This value is JSON-Excluded until coppercore support for AngularVelocity is merged:
+   * https://github.com/team401/coppercore/pull/121
    */
-  public final AngularVelocity shooterVelocityEpsilon = RotationsPerSecond.of(60);
+  @JSONExclude public final AngularVelocity shooterVelocityEpsilon = RotationsPerSecond.of(60);
 
   /**
    * Base TalonFX configs that will be modified by ShooterIOTalonFX before being applied to the

@@ -1,5 +1,6 @@
 package frc.robot;
 
+import frc.robot.constants.JsonConstants;
 import frc.robot.constants.ModeConstants;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.Drive;
@@ -15,6 +16,7 @@ import frc.robot.subsystems.scoring.shooter.ShooterIO.ShooterSide;
 import frc.robot.subsystems.scoring.shooter.ShooterIOSim;
 import frc.robot.subsystems.scoring.shooter.ShooterIOTalonFX;
 import frc.robot.subsystems.scoring.shooter.ShooterMechanism;
+import java.util.Optional;
 
 public final class InitSubsystems {
   public static Drive initDrive() {
@@ -49,25 +51,48 @@ public final class InitSubsystems {
   }
 
   public static ScoringSubsystem initScoring() {
-    return switch (ModeConstants.CURRENT_MODE) {
-      case REAL ->
-      // Real robot, instantiate hardware IO implementations
-      ScoringSubsystem.create(
-          new IndexerMechanism(),
-          new ShooterMechanism(
-              new ShooterIOTalonFX(ShooterSide.Left), new ShooterIOTalonFX(ShooterSide.Right)));
+    Optional<IndexerMechanism> indexer = Optional.empty();
+    Optional<ShooterMechanism> shooter = Optional.empty();
 
-      case SIM ->
-      // Sim robot, instantiate physics sim IO implementations
-      ScoringSubsystem.create(
-          new IndexerMechanism(),
-          new ShooterMechanism(
-              new ShooterIOSim(ShooterSide.Left), new ShooterIOSim(ShooterSide.Right)));
+    switch (ModeConstants.CURRENT_MODE) {
+      case REAL -> {
+        // Real robot, instantiate hardware IO implementations
+        if (JsonConstants.scoringFeatureFlags.runIndexer) {
+          indexer = Optional.of(new IndexerMechanism());
+        }
+        if (JsonConstants.scoringFeatureFlags.runShooter) {
+          shooter =
+              Optional.of(
+                  new ShooterMechanism(
+                      new ShooterIOTalonFX(ShooterSide.Left),
+                      new ShooterIOTalonFX(ShooterSide.Right)));
+        }
+      }
 
-      default ->
-      // Replayed robot, disable IO implementations
-      ScoringSubsystem.create(
-          new IndexerMechanism(), new ShooterMechanism(new ShooterIO() {}, new ShooterIO() {}));
-    };
+      case SIM -> {
+        // Sim robot, instantiate physics sim IO implementations
+        if (JsonConstants.scoringFeatureFlags.runIndexer) {
+          indexer = Optional.of(new IndexerMechanism());
+        }
+        if (JsonConstants.scoringFeatureFlags.runShooter) {
+          shooter =
+              Optional.of(
+                  new ShooterMechanism(
+                      new ShooterIOSim(ShooterSide.Left), new ShooterIOSim(ShooterSide.Right)));
+        }
+      }
+
+      default -> {
+        // Replayed robot, disable IO implementations
+        if (JsonConstants.scoringFeatureFlags.runIndexer) {
+          indexer = Optional.of(new IndexerMechanism());
+        }
+        if (JsonConstants.scoringFeatureFlags.runShooter) {
+          shooter = Optional.of(new ShooterMechanism(new ShooterIO() {}, new ShooterIO() {}));
+        }
+      }
+    }
+
+    return ScoringSubsystem.create(indexer, shooter);
   }
 }
