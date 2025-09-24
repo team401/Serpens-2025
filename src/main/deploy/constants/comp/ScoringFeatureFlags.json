@@ -1,4 +1,4 @@
 {
-  "runShooter": true,
-  "runIndexer": false
+  "runShooter": false,
+  "runIndexer": true
 }

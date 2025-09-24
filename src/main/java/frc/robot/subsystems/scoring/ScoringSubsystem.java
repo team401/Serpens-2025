@@ -2,6 +2,7 @@ package frc.robot.subsystems.scoring;
 
 import coppercore.wpilib_interface.MonitoredSubsystem;
 import edu.wpi.first.math.geometry.Pose2d;
+import frc.robot.subsystems.scoring.indexer.IndexerMechanism;
 import frc.robot.subsystems.scoring.shooter.ShooterMechanism;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -82,6 +83,7 @@ public class ScoringSubsystem extends MonitoredSubsystem {
   }
 
   public void testPeriodic() {
+    optionalIndexer.ifPresent(indexer -> indexer.testPeriodic());
     optionalShooter.ifPresent(shooter -> shooter.testPeriodic());
   }
 

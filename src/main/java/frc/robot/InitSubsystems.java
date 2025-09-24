@@ -9,8 +9,11 @@ import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
-import frc.robot.subsystems.scoring.IndexerMechanism;
 import frc.robot.subsystems.scoring.ScoringSubsystem;
+import frc.robot.subsystems.scoring.indexer.IndexerIO;
+import frc.robot.subsystems.scoring.indexer.IndexerIOSim;
+import frc.robot.subsystems.scoring.indexer.IndexerIOTalonFX;
+import frc.robot.subsystems.scoring.indexer.IndexerMechanism;
 import frc.robot.subsystems.scoring.shooter.ShooterIO;
 import frc.robot.subsystems.scoring.shooter.ShooterIO.ShooterSide;
 import frc.robot.subsystems.scoring.shooter.ShooterIOSim;
@@ -58,7 +61,7 @@ public final class InitSubsystems {
       case REAL -> {
         // Real robot, instantiate hardware IO implementations
         if (JsonConstants.scoringFeatureFlags.runIndexer) {
-          indexer = Optional.of(new IndexerMechanism());
+          indexer = Optional.of(new IndexerMechanism(new IndexerIOTalonFX()));
         }
         if (JsonConstants.scoringFeatureFlags.runShooter) {
           shooter =
@@ -72,7 +75,7 @@ public final class InitSubsystems {
       case SIM -> {
         // Sim robot, instantiate physics sim IO implementations
         if (JsonConstants.scoringFeatureFlags.runIndexer) {
-          indexer = Optional.of(new IndexerMechanism());
+          indexer = Optional.of(new IndexerMechanism(new IndexerIOSim()));
         }
         if (JsonConstants.scoringFeatureFlags.runShooter) {
           shooter =
@@ -85,7 +88,7 @@ public final class InitSubsystems {
       default -> {
         // Replayed robot, disable IO implementations
         if (JsonConstants.scoringFeatureFlags.runIndexer) {
-          indexer = Optional.of(new IndexerMechanism());
+          indexer = Optional.of(new IndexerMechanism(new IndexerIO() {}));
         }
         if (JsonConstants.scoringFeatureFlags.runShooter) {
           shooter = Optional.of(new ShooterMechanism(new ShooterIO() {}, new ShooterIO() {}));

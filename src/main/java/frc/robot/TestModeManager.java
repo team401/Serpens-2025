@@ -9,7 +9,9 @@ public final class TestModeManager {
     None, // No test mode selected
     ShooterVoltageTuning("Shooter Voltage Open Loop Tuning"),
     ShooterCurrentTuning("Shooter Current Open Loop Tuning"),
-    ShooterClosedLoopTuning("Shooter Closed Loop Tuning");
+    ShooterClosedLoopTuning("Shooter Closed Loop Tuning"),
+    IndexerVoltageTuning("Indexer Voltage Open Loop Tuning"),
+    IndexerClosedLoopTuning("Indexer Closed Loop Tuning");
 
     private final String description;
 

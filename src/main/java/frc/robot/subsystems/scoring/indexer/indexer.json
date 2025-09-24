@@ -1,0 +1,11 @@
+{
+  "package": "subsystems.scoring.indexer",
+  "name": "Indexer",
+  "kind": "Arm",
+  "canbus": "canivore",
+  "motors": [
+    "indexerMotor"
+  ],
+  "lead_motor": "indexerMotor",
+  "encoder": "indexerEncoder"
+}
