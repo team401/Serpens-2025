@@ -76,7 +76,7 @@ When vision estimates and odometry can be trusted, the ShooterSpeeds can be dete
 
 * If that point is in not our team's side of the barge, scoring is currently impossible. In this case, the best course of action is to find the closest point on the barge to the point found previously that is within our side of the barge and warm up as if shooting at that spot instead. Note that it is vital that the state machine isn't allowed to transition to score even if everything else is ready, since the setpoint won't match an actual scoring location.
 
-* Take the distance to that point and feed it into a map that uses InterplatingDoubleTreeMap from WPILib to map distance to shooter speeds.
+* Take the distance to that point and feed it into a map that uses InterpolatingDoubleTreeMap from WPILib to map distance to shooter speeds.
 
 ** Potential challenge: Performance may be poor if we are constantly creating new ShooterSpeeds objects. ShooterSpeeds might be best converted into a class and then given a method to replace itself by interpolating between two values. Then, we could store one ShooterSpeeds object that gets replaced every in periodic with the current output of the map.
 
