@@ -5,6 +5,7 @@ package frc.robot.constants.subsystems.intake; // NOTE: This should be changed i
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
@@ -21,9 +22,11 @@ import coppercore.parameter_tools.json.JSONSync;
 import coppercore.parameter_tools.json.JSONSyncConfigBuilder;
 import coppercore.parameter_tools.path_provider.EnvironmentHandler;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.MomentOfInertia;
+import frc.robot.subsystems.intake.IntakeRollerMechanism.RollerSpeeds;
 
 public final class IntakeConstants {
   @JSONExclude
@@ -58,7 +61,17 @@ public final class IntakeConstants {
    * The intakeArmEncoder is represented as the mechanism in our Phoenix configs.
    * This means that we are controlling to a goal in terms of large CANCoder angle.
    */
+
+  @JSONExclude
+  public final RollerSpeeds intakeRollerSpeed =
+      new RollerSpeeds(RPM.of(100)); // TODO: Tune this in real life!
+
+  public final Angle intakeArmCollectionAngle = Rotations.of(65.0); // TODO tune irl
   @JSONExclude public final double intakeArmEncoderToMechanismRatio = 1.0;
+
+  public final AngularVelocity intakeRollerCollectionSpeed = RPM.of(100); // TODO: tune irl
+
+  public final Angle intakeArmStartAngle = Rotations.of(0);
 
   @JSONExclude
   public final double rotorToIntakeArmEncoderRatio = 1.0; // TODO: Replace placeholder value
