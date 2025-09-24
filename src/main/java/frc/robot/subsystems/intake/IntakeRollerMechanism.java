@@ -36,6 +36,14 @@ public class IntakeRollerMechanism {
     Stop,
   }
 
+  /** The states of the shooter. This isn't a state machine because there are only two. */
+  private enum RollerAction {
+    STOP,
+    INTAKE
+  }
+
+  private RollerAction action = RollerAction.STOP;
+
   @AutoLogOutput(key = "Intake/Roller/outputMode")
   private RollerOutputMode outputMode = RollerOutputMode.ClosedLoop;
   // tuneable for test modes
@@ -131,6 +139,16 @@ public class IntakeRollerMechanism {
   public void periodic() {
     io.updateInputs(inputs);
     Logger.processInputs("Intake/Rollers/rollerInputs", inputs);
+
+    switch (action) {
+      case STOP -> {
+        stop();
+      }
+      case INTAKE -> {
+      
+        runSpeeds(JsonConstants.intakeConstants.intakeRollerSpeed);
+      }
+    }
   }
 
   public void runSpeeds(RollerSpeeds speeds) {
@@ -142,11 +160,17 @@ public class IntakeRollerMechanism {
   /** Stop the intake rollers, setting their goal speeds to zero */
   public void stop() {
     io.stop();
-
     outputMode = RollerOutputMode.Stop;
+    action = RollerAction.STOP;
   }
 
-  public final IntakeRollerInputs getLeftInputs() {
+  public void startSpinning() {
+    io.runSpeed(JsonConstants.intakeConstants.intakeRollerCollectionSpeed);
+    outputMode = RollerOutputMode.ClosedLoop;
+    action = RollerAction.INTAKE;
+  }
+
+  public final IntakeRollerInputs getRollerInputs() {
     return inputs;
   }
 }

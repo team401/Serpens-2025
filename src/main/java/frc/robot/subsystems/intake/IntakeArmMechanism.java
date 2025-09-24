@@ -10,6 +10,7 @@ import coppercore.wpilib_interface.UnitUtils;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.MutAngle;
+import frc.robot.constants.JsonConstants;
 import frc.robot.constants.subsystems.intake.IntakeConstants;
 import frc.robot.subsystems.intake.IntakeArmIO.IntakeArmOutputMode;
 import org.littletonrobotics.junction.Logger;
@@ -303,5 +304,13 @@ public class IntakeArmMechanism {
   /** Get the current unclamped goal angle of the intakeArm */
   public Angle getGoalAngle() {
     return goalAngle;
+  }
+
+  public void goToIntakePos() {
+    setGoalAngle(JsonConstants.intakeConstants.intakeArmCollectionAngle);
+  }
+
+  public void goToStartPos() {
+    setGoalAngle(JsonConstants.intakeConstants.intakeArmStartAngle);
   }
 }

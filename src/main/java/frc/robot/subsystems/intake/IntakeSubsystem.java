@@ -30,6 +30,17 @@ public class IntakeSubsystem extends MonitoredSubsystem {
   @Override
   public void periodic() {
     arm.periodic();
+    roller.periodic();
+  }
+
+  public void startIntaking() {
+    arm.goToIntakePos();
+    roller.startSpinning();
+  }
+
+  public void stopIntaking() {
+    arm.goToStartPos();
+    roller.stop();
   }
 
   @Override
