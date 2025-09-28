@@ -10,6 +10,7 @@ import coppercore.wpilib_interface.UnitUtils;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.MutAngle;
+import frc.robot.TestModeManager;
 import frc.robot.constants.JsonConstants;
 import frc.robot.constants.subsystems.intake.IntakeConstants;
 import frc.robot.subsystems.intake.IntakeArmIO.IntakeArmOutputMode;
@@ -114,57 +115,58 @@ public class IntakeArmMechanism {
 
   /** This method must be called from the subsystem's test periodic! */
   public void testPeriodic() {
-    if (false) { // TODO: Replace placeholder test if IntakeArmTuning mode is active
-      // switch (TestModeManager.getTestMode()) {
-      // case IntakeArmClosedLoopTuning:
-      io.setOutputMode(IntakeArmOutputMode.ClosedLoop);
-      LoggedTunableNumber.ifChanged(
-          hashCode(),
-          (pid) -> {
-            io.setPID(pid[0], pid[1], pid[2]);
-          },
-          intakeArmkP,
-          intakeArmkI,
-          intakeArmkD);
-
-      LoggedTunableNumber.ifChanged(
-          hashCode(),
-          (ff) -> {
-            io.setFF(ff[0], ff[1], ff[2], ff[3]);
-          },
-          intakeArmkS,
-          intakeArmkV,
-          intakeArmkA,
-          intakeArmkG);
-
-      LoggedTunableNumber.ifChanged(
-          hashCode(),
-          (maxProfile) -> {
-            io.setMaxProfile(
-                RadiansPerSecond.of(0.0),
-                VoltsPerRadianPerSecondSquared.ofNative(maxProfile[0]),
-                VoltsPerRadianPerSecond.ofNative(maxProfile[1]));
-          },
-          intakeArmExpokA,
-          intakeArmExpokV);
-
-      LoggedTunableNumber.ifChanged(
-          hashCode(),
-          (setpoint) -> {
-            setGoalAngle(Rotations.of(setpoint[0]));
-          },
-          intakeArmTuningSetpointRotations);
-      /*  case IntakeArmVoltageTuning:
+    switch (TestModeManager.getTestMode()) {
+      case IntakeArmClosedLoopTuning:
+        io.setOutputMode(IntakeArmOutputMode.ClosedLoop);
         LoggedTunableNumber.ifChanged(
-          hashCode(),
-          (setpoint) -> {
-            io.setOverrideVoltage(Volts.of(setpoint[0]));
-          },
-          intakeArmTuningOverrideVolts);
-        io.setOverrideMode(true);
+            hashCode(),
+            (pid) -> {
+              io.setPID(pid[0], pid[1], pid[2]);
+            },
+            intakeArmkP,
+            intakeArmkI,
+            intakeArmkD);
+
+        LoggedTunableNumber.ifChanged(
+            hashCode(),
+            (ff) -> {
+              io.setFF(ff[0], ff[1], ff[2], ff[3]);
+            },
+            intakeArmkS,
+            intakeArmkV,
+            intakeArmkA,
+            intakeArmkG);
+
+        LoggedTunableNumber.ifChanged(
+            hashCode(),
+            (maxProfile) -> {
+              io.setMaxProfile(
+                  RadiansPerSecond.of(0.0),
+                  VoltsPerRadianPerSecondSquared.ofNative(maxProfile[0]),
+                  VoltsPerRadianPerSecond.ofNative(maxProfile[1]));
+            },
+            intakeArmExpokA,
+            intakeArmExpokV);
+
+        LoggedTunableNumber.ifChanged(
+            hashCode(),
+            (setpoint) -> {
+              setGoalAngle(Rotations.of(setpoint[0]));
+            },
+            intakeArmTuningSetpointRotations);
+        /*  case IntakeArmVoltageTuning:
+          LoggedTunableNumber.ifChanged(
+            hashCode(),
+            (setpoint) -> {
+              io.setOverrideVoltage(Volts.of(setpoint[0]));
+            },
+            intakeArmTuningOverrideVolts);
+          io.setOverrideMode(true);
+          break;
+        }
+        */
+      default:
         break;
-      }
-      */
     }
   }
 

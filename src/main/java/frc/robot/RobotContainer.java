@@ -71,6 +71,8 @@ public class RobotContainer {
 
     // Configure the button bindings
     configureButtonBindings();
+
+    TestModeManager.init();
   }
 
   private void loadConstants() {
@@ -132,5 +134,9 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     return autoChooser.get();
+  }
+
+  public void testPeriodic() {
+    intake.testPeriodic();
   }
 }

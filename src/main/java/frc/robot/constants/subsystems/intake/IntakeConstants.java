@@ -69,6 +69,7 @@ public final class IntakeConstants {
   public final Angle intakeArmCollectionAngle = Rotations.of(65.0); // TODO tune irl
   @JSONExclude public final double intakeArmEncoderToMechanismRatio = 1.0;
 
+  @JSONExclude
   public final AngularVelocity intakeRollerCollectionSpeed = RPM.of(100); // TODO: tune irl
 
   public final Angle intakeArmStartAngle = Rotations.of(0);
@@ -83,7 +84,7 @@ public final class IntakeConstants {
   public final Double intakeArmKS = 0.0;
   public final Double intakeArmKV = 0.0;
   public final Double intakeArmKA = 0.0;
-  public final Double intakeArmKG = 0.0;
+  public final Double intakeArmKG = 37.9;
 
   /** This is a Double until coppercore JSONSync supports RotationsPerSecond */
   public final Double intakeArmAngularCruiseVelocityRotationsPerSecond = 1.0;
@@ -160,15 +161,13 @@ public final class IntakeConstants {
     public final Double velocityStdDev = 0.0;
 
     @JSONExclude
-    public final MomentOfInertia intakeArmMomentOfInertia =
-        KilogramSquareMeters.of(0.05); // TODO: Replace placeholder moment of inertia
+    public final MomentOfInertia intakeArmMomentOfInertia = KilogramSquareMeters.of(0.03);
 
     @JSONExclude
     public final MomentOfInertia intakeRollerMomentOfInertia =
         KilogramSquareMeters.of(0.05); // TODO: Replace placeholder moment of inertia
 
-    public final Distance intakeArmArmLength =
-        Meters.of(1.0); // TODO: Replace placeholder arm length
+    public final Distance intakeArmArmLength = Meters.of(.3048);
     public final Angle intakeArmMinAngle =
         Radians.of(0.0); // TODO: Update placeholder min & max angles
     public final Angle intakeArmMaxAngle = Radians.of(1.0);

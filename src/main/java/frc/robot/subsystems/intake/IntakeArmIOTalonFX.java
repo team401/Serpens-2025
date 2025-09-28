@@ -13,7 +13,7 @@ import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.MotionMagicExpoTorqueCurrentFOC;
+import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
 import com.ctre.phoenix6.controls.TorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANcoder;
@@ -56,8 +56,7 @@ public class IntakeArmIOTalonFX implements IntakeArmIO {
   private StatusSignal<Current> intakeArmMotorStatorCurrent;
 
   // Reuse the same motion magic request to avoid garbage collector having to clean them up.
-  MotionMagicExpoTorqueCurrentFOC motionMagicExpoTorqueCurrentFOC =
-      new MotionMagicExpoTorqueCurrentFOC(0.0);
+  MotionMagicExpoVoltage motionMagicExpoTorqueCurrentFOC = new MotionMagicExpoVoltage(0.0);
   VoltageOut voltageOut = new VoltageOut(0.0);
   TorqueCurrentFOC currentOut = new TorqueCurrentFOC(0.0);
 
