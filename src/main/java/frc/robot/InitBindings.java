@@ -5,7 +5,10 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.scoring.ScoringSubsystem;
 
 /** Methods to initialize bindings for each subsystems */
-public abstract class InitBindings {
+public final class InitBindings {
+  /** This class cannot be instantiated. */
+  private InitBindings() {}
+
   /**
    * Initialize bindings that require only the scoring subsystem
    *
