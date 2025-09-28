@@ -1,14 +1,13 @@
 package frc.robot;
 
-import java.util.List;
-import java.util.function.DoubleSupplier;
-
 import coppercore.parameter_tools.path_provider.EnvironmentHandler;
 import coppercore.wpilib_interface.Controllers;
 import coppercore.wpilib_interface.DriveWithJoysticks;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.drive.Drive;
+import java.util.List;
+import java.util.function.DoubleSupplier;
 
 public final class InitBindings {
 
