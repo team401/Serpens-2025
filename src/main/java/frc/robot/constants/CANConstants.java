@@ -19,6 +19,8 @@ public class CANConstants {
           EnvironmentHandler.getEnvironmentHandler().getEnvironmentPathProvider(),
           new JSONSyncConfigBuilder().setPrettyPrinting(true).build());
 
+  public final String CANBusName = "canivore";
+
   public final Integer shooterLeftMotorID = 13; // TODO: Real motor IDs
   public final Integer shooterRightMotorID = 14;
 

@@ -62,7 +62,7 @@ public class ShooterIOTalonFX implements ShooterIO {
             : JsonConstants.canConstants.shooterRightMotorID;
 
     // Configure motors
-    motor = new TalonFX(motorID, JsonConstants.shooterConstants.CANBusName);
+    motor = new TalonFX(motorID, JsonConstants.canConstants.CANBusName);
 
     talonFXConfigs = JsonConstants.shooterConstants.baseTalonFXConfigs;
 

@@ -30,8 +30,6 @@ public final class ShooterConstants {
           EnvironmentHandler.getEnvironmentHandler().getEnvironmentPathProvider(),
           new JSONSyncConfigBuilder().setPrettyPrinting(true).build());
 
-  public final String CANBusName = "canivore";
-
   /**
    * What angular velocity must the shooter velocity be within in order for the shooter to be
    * considered "ready?"
