@@ -33,6 +33,11 @@ public class IntakeSubsystem extends MonitoredSubsystem {
     roller.periodic();
   }
 
+  public void testPeriodic() {
+    arm.testPeriodic();
+    roller.testPeriodic();
+  }
+
   public void startIntaking() {
     arm.goToIntakePos();
     roller.startSpinning();

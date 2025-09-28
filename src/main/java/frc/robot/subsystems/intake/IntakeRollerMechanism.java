@@ -145,7 +145,6 @@ public class IntakeRollerMechanism {
         stop();
       }
       case INTAKE -> {
-      
         runSpeeds(JsonConstants.intakeConstants.intakeRollerSpeed);
       }
     }

@@ -12,7 +12,8 @@ public final class TestModeManager {
     ShooterClosedLoopTuning("Shooter Closed Loop Tuning"),
     IntakeRollerVoltageTuning("Intake Roller Voltage Open Loop Tuning"),
     IntakeRollerCurrentTuning("Intake Roller Current Open Loop Tuning"),
-    IntakeRollerClosedLoopTuning("Intake Roller Closed Loop Tuning");
+    IntakeRollerClosedLoopTuning("Intake Roller Closed Loop Tuning"),
+    IntakeArmClosedLoopTuning("Intake Arm Closed Loop Tuning");
 
     private final String description;
 

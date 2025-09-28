@@ -74,6 +74,8 @@ public class RobotContainer {
 
     // Configure the button bindings
     configureButtonBindings();
+
+    TestModeManager.init();
   }
 
   private void loadConstants() {
