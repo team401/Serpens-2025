@@ -9,8 +9,10 @@ import java.util.function.Supplier;
 public class ScoringSubsystem extends MonitoredSubsystem {
   private static Optional<ScoringSubsystem> instance = Optional.empty();
 
-  private final Optional<IndexerMechanism> optionalIndexer;
-  private final Optional<ShooterMechanism> optionalShooter;
+  /** The indexer mechanism, which may or may not be enabled */
+  private final Optional<IndexerMechanism> indexer;
+  /** The shooter mechanism, which may or may not be enabled */
+  private final Optional<ShooterMechanism> shooter;
 
   /**
    * Construct a new ScoringSubsystem
@@ -21,8 +23,8 @@ public class ScoringSubsystem extends MonitoredSubsystem {
    * @param shooter The ShooterMechanism instance to use
    */
   private ScoringSubsystem(Optional<IndexerMechanism> indexer, Optional<ShooterMechanism> shooter) {
-    this.optionalIndexer = indexer;
-    this.optionalShooter = shooter;
+    this.indexer = indexer;
+    this.shooter = shooter;
   }
 
   // Create method architecture suggested by OpenAI ChatGPT, although no generated code has been
@@ -61,7 +63,7 @@ public class ScoringSubsystem extends MonitoredSubsystem {
    *     pose
    */
   public void initializeShooterPoseSupplier(Supplier<Pose2d> newPoseSupplier) {
-    optionalShooter.ifPresent(shooter -> shooter.initializePoseSupplier(newPoseSupplier));
+    shooter.ifPresent(shooter -> shooter.initializePoseSupplier(newPoseSupplier));
   }
 
   /**
@@ -77,12 +79,12 @@ public class ScoringSubsystem extends MonitoredSubsystem {
 
   @Override
   public void monitoredPeriodic() {
-    optionalIndexer.ifPresent(indexer -> indexer.periodic());
-    optionalShooter.ifPresent(shooter -> shooter.periodic());
+    indexer.ifPresent(indexer -> indexer.periodic());
+    shooter.ifPresent(shooter -> shooter.periodic());
   }
 
   public void testPeriodic() {
-    optionalShooter.ifPresent(shooter -> shooter.testPeriodic());
+    shooter.ifPresent(shooter -> shooter.testPeriodic());
   }
 
   /**
@@ -94,7 +96,7 @@ public class ScoringSubsystem extends MonitoredSubsystem {
    * <p>If the shooter isn't enabled in ScoringFeatureFlags, this is a no-op
    */
   public void tempWarmup() {
-    optionalShooter.ifPresent(shooter -> shooter.warmUp());
+    shooter.ifPresent(shooter -> shooter.warmUp());
   }
 
   /**
@@ -106,6 +108,6 @@ public class ScoringSubsystem extends MonitoredSubsystem {
    * machine is implemented.
    */
   public void tempStopShooter() {
-    optionalShooter.ifPresent(shooter -> shooter.stop());
+    shooter.ifPresent(shooter -> shooter.stop());
   }
 }
