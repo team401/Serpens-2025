@@ -6,7 +6,13 @@
       "name": "comp",
       "filepath": "comp",
       "files": [
-        "FeatureFlags.json"
+        "FeatureFlags.json",
+        "CANConstants.json",
+        "RedFieldLocations.json",
+        "BlueFieldLocations.json",
+        "ScoringFeatureFlags.json",
+        "ShooterConstants.json",
+        "ShooterConstants.json"
       ]
     }
   ]

@@ -1,0 +1,74 @@
+= Shooter
+:toc: left
+
+== Summary
+
+The shooter has 2 flywheels. These flywheels will be controlled using closed-loop control through Motion Magic Velocity and drive the motors with Torque-Current Field Oriented Control
+
+== Public API
+
+The shooter provides two main methods for control, which should be called by (and only by) the Scoring Subsystem:
+
+=== Stop
+
+Stops the shooter motors.
+
+=== Warm Up
+
+Based on whether or not pose-based shooting is currently enabled, either calculate the currently accurate set of speeds or run the shooter at the predefined fallback set of speeds.
+
+This method will actually configure the shooter's "current action" to be warming up. This means that it will run the calculations automatically in every periodic loop, so even if `warmUp` isn't called periodically it will still behave correctly.
+
+This was previously `runSpeeds` but it was replaced since the determination of shooter speeds is the responsibility of the Shooter itself, not any other subsystem and therefore placing that code anywhere else would cause unnecessary clutter.
+
+=== Tuning Periodic
+
+This method will read LoggedTunableNumbers for each PID and Feedforward gain. If the tuning mode specifies a manual control output, it will read either the voltage or the current and apply it. If it specifies closed loop control, it will read shooter speeds and set them as its goal speeds.
+
+== Tuning Modes
+
+The shooter has various tuning modes to tune gains and test the system. It is recommended to use Elastic Dashboard to interact with the LoggedTunableNumbers published. The shooter defines 3 tuning modes:
+
+=== Shooter closed loop tuning
+
+This mode will read PID & FeedForward gains from NetworkTables and use them to control to a setpoint specified for each motor goal speed (also read from NetworkTables).
+
+Gains will be published and read from NetworkTables at the path `/SmartDashboard/TunableNumbers/ShooterTunables/K[P,I,D,S,V,A]`. The target RPM for closed-loop control of each shooter side is will be published and read from NetworkTables at the paths `/SmartDashboard/TunableNumbers/ShooterTunables/[Left/Right]TargetRPM`. These LoggedTunableNumbers are checked and updated every periodic cycle.
+
+=== Shooter voltage tuning
+
+Manually specify a voltage for each shooter wheel via NetworkTables. This is useful for quick testing and prototyping.
+
+Voltage numbers will be published and then continually read from NetworkTables at the paths `/SmartDashboard/TunableNumbers/ShooterTunables/[Left/Right]ManualVolts`. These values will be updated every periodic cycle if changed.
+
+=== Shooter current tuning
+
+Manually specify a torque-current for each shooter wheel via NetworkTables. This mode can be used to determine kS gain and quickly test motors.
+
+Voltage numbers will be published and then continually read from NetworkTables at the paths `/SmartDashboard/TunableNumbers/ShooterTunables/[Left/Right]ManualAmps`. These values will be updated every periodic cycle if changed.
+
+== Sim Testing
+
+To test the shooter in Sim, you can use the `Shooter closed loop tuning` test mode, or an xbox controller.
+
+=== Testing with manual setpoints
+
+To test with manual setpoints, select the `Shooter Closed Loop Tuning` test mode. Enable `test` in Sim GUI and modify `/SmartDashboard/TunableNumbers/ShooterTunables/[Left/Right]TargetRPM` in Elastic (or AdvantageScope). Observe the logs of the motor velocity (search for `scoring/shooter/[left/right]Inputs/MotorVelocity`) to ensure that the RPM matches the values set.
+
+=== Testing with controller binding
+
+* Open odometry in AdvantageScope and view the robot pose (`Odometry/Robot`).
+
+* Enable teleop and drive the robot near the barge. Make sure to turn it a few degrees so that the shot isn't perpendicular.
+
+* Press and release the `Right Trigger` to start warming up  shooter. This will initialize all of the logged fields for warmup.
+
+* Search for `clampedShotTarget` and `unclampedShotTarget`. Drag them into the `Poses` pane below the Robot pose. Click on their icons to change them to `Trajectory` mode.
+
+* Search for `MotorVelocity` to view it in the sidebar.
+
+* Now that the logging is set up, you can drive around while holding `Right Trigger`. You can observe `unclampedShotTarget` is the ray cast out of the side of the robot and `clampedShotTarget` is the clamping of that shot to be achievable in the barge.
+
+** The logs of `MotorVelocity` should grow as you drive away from the barge and shrink as you drive toward it.
+
+** `isShotAttainable` should blink from green to red when the robot angles away from the barge or exits its range, and then turn green again when the robot is turned toward a shot it can make. 

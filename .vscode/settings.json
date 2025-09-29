@@ -70,5 +70,14 @@
     "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle"
   },
   "java.compile.nullAnalysis.mode": "automatic",
-  "java.jdt.ls.vmargs": "-XX:+UseParallelGC -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Dsun.zip.disableMemoryMapping=true -Xmx2G -Xms100m -Xlog:disable"
+  "java.jdt.ls.vmargs": "-XX:+UseParallelGC -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Dsun.zip.disableMemoryMapping=true -Xmx2G -Xms100m -Xlog:disable",
+  "cSpell.words": [
+    "canivore",
+    "coppercore",
+    "Debouncer",
+    "FFSVA",
+    "odometry",
+    "Quasistatic",
+    "wpilibj"
+  ]
 }

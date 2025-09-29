@@ -1,13 +1,18 @@
 package frc.robot.subsystems.scoring;
 
 import coppercore.wpilib_interface.MonitoredSubsystem;
+import edu.wpi.first.math.geometry.Pose2d;
+import frc.robot.subsystems.scoring.shooter.ShooterMechanism;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 public class ScoringSubsystem extends MonitoredSubsystem {
   private static Optional<ScoringSubsystem> instance = Optional.empty();
 
-  private IndexerMechanism indexer;
-  private ShooterMechanism shooter;
+  /** The indexer mechanism, which may or may not be enabled */
+  private final Optional<IndexerMechanism> indexer;
+  /** The shooter mechanism, which may or may not be enabled */
+  private final Optional<ShooterMechanism> shooter;
 
   /**
    * Construct a new ScoringSubsystem
@@ -17,7 +22,7 @@ public class ScoringSubsystem extends MonitoredSubsystem {
    * @param indexer The IndexerMechanism instance to use
    * @param shooter The ShooterMechanism instance to use
    */
-  private ScoringSubsystem(IndexerMechanism indexer, ShooterMechanism shooter) {
+  private ScoringSubsystem(Optional<IndexerMechanism> indexer, Optional<ShooterMechanism> shooter) {
     this.indexer = indexer;
     this.shooter = shooter;
   }
@@ -36,7 +41,8 @@ public class ScoringSubsystem extends MonitoredSubsystem {
    * @param shooter The ShooterMechanism instance to use
    * @return The newly created ScoringSubsystem instance
    */
-  public static ScoringSubsystem create(IndexerMechanism indexer, ShooterMechanism shooter) {
+  public static ScoringSubsystem create(
+      Optional<IndexerMechanism> indexer, Optional<ShooterMechanism> shooter) {
     if (instance.isPresent()) {
       throw new Error("ScoringSubsystem was created more than once.");
     }
@@ -46,6 +52,18 @@ public class ScoringSubsystem extends MonitoredSubsystem {
     instance = Optional.of(createdInstance);
 
     return createdInstance;
+  }
+
+  /**
+   * Initialize the Shooter mechanism's drive pose supplier to use for pose-based shots
+   *
+   * <p>If shooter isn't run, this method is a no-op
+   *
+   * @param newPoseSupplier A Supplier for a Pose2d that supplies the drivetrain's current odometry
+   *     pose
+   */
+  public void initializeShooterPoseSupplier(Supplier<Pose2d> newPoseSupplier) {
+    shooter.ifPresent(shooter -> shooter.initializePoseSupplier(newPoseSupplier));
   }
 
   /**
@@ -60,5 +78,36 @@ public class ScoringSubsystem extends MonitoredSubsystem {
   }
 
   @Override
-  public void monitoredPeriodic() {}
+  public void monitoredPeriodic() {
+    indexer.ifPresent(indexer -> indexer.periodic());
+    shooter.ifPresent(shooter -> shooter.periodic());
+  }
+
+  public void testPeriodic() {
+    shooter.ifPresent(shooter -> shooter.testPeriodic());
+  }
+
+  /**
+   * Warm up the shooter
+   *
+   * <p>This method exists to give bindings a temporary way to make the shooter warm up before the
+   * state machine is implemented.
+   *
+   * <p>If the shooter isn't enabled in ScoringFeatureFlags, this is a no-op
+   */
+  public void tempWarmup() {
+    shooter.ifPresent(shooter -> shooter.warmUp());
+  }
+
+  /**
+   * Stop the shooter
+   *
+   * <p>This method exists to give bindings a temporary way to make the shooter stop warming up
+   *
+   * <p>If the shooter isn't enabled in ScoringFeatureFlags, this is a no-op before the state
+   * machine is implemented.
+   */
+  public void tempStopShooter() {
+    shooter.ifPresent(shooter -> shooter.stop());
+  }
 }
