@@ -39,8 +39,8 @@ public final class IntakeConstants {
 
   public final String CANBusName = "canivore";
 
-  public final Integer intakeArmMotorId = 1; // TODO: Replace placeholder CAN ID
-  public final Integer intakeRollerMotorId = 2; // TODO: Replace placeholder CAN ID
+  public final Integer intakeArmMotorId = 9; // TODO: Replace placeholder CAN ID
+  public final Integer intakeRollerMotorId = 10; // TODO: Replace placeholder CAN ID
 
   /**
    * What point in the sensor's range the discontinuity occurs. Results in a range of [1-x, x). For
@@ -52,7 +52,7 @@ public final class IntakeConstants {
 
   public final Angle intakeArmEncoderMagnetOffset = Radians.of(0.0);
 
-  public final Integer intakeArmEncoderID = 2; // TODO: Replace placeholder CAN ID
+  public final Integer intakeArmEncoderID = 11; // TODO: Replace placeholder CAN ID
 
   public final SensorDirectionValue intakeArmEncoderDirection =
       SensorDirectionValue.Clockwise_Positive;
