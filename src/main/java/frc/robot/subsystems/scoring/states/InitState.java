@@ -1,7 +1,10 @@
 package frc.robot.subsystems.scoring.states;
 
+import static edu.wpi.first.units.Units.Seconds;
+
 import coppercore.controls.state_machine.transition.Transition;
 import edu.wpi.first.wpilibj.Timer;
+import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.scoring.ScoringSubsystem;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -26,14 +29,20 @@ public class InitState extends BaseScoringState {
    * Timer to record the maximum duration that the indexer can remain stationary before it is
    * determined that the system is at the bottom of its range of motion.
    */
-  Timer homingTimer = new Timer();
+  private Timer unmovingTimer = new Timer();
+  /** Keep track of whether or not the indexer has moved yet */
+  private boolean hasMoved = false;
 
   public void onEntry(Transition transition, ScoringSubsystem scoring) {
-    homingTimer.reset();
-    homingTimer.start();
+    unmovingTimer.restart();
+
+    hasMoved = false;
   }
 
-  public void periodic(ScoringSubsystem scoring) {}
+  public void periodic(ScoringSubsystem scoring) {
+    if (unmovingTimer.hasElapsed(
+        JsonConstants.scoringConstants.homingMaxUnmovingTime.in(Seconds))) {}
+  }
 
   public void onExit(Transition transition, ScoringSubsystem scoring) {}
 }

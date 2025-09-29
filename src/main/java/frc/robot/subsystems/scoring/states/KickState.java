@@ -12,7 +12,10 @@ public class KickState extends BaseScoringState {
 
   public void onEntry(Transition transition, ScoringSubsystem scoring) {}
 
-  public void periodic(ScoringSubsystem scoring) {}
+  public void periodic(ScoringSubsystem scoring) {
+    scoring.indexIntoShooter();
+    scoring.warmupShooter();
+  }
 
   public void onExit(Transition transition, ScoringSubsystem scoring) {}
 }

@@ -21,12 +21,12 @@ public final class InitBindings {
         .onTrue(
             new InstantCommand(
                 () -> {
-                  scoring.tempWarmup();
+                  scoring.warmupShooter();
                 }))
         .onFalse(
             new InstantCommand(
                 () -> {
-                  scoring.tempStopShooter();
+                  scoring.stopShooter();
                 }));
   }
 }

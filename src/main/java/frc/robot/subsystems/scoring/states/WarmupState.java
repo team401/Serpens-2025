@@ -12,7 +12,10 @@ public class WarmupState extends BaseScoringState {
 
   public void onEntry(Transition transition, ScoringSubsystem scoring) {}
 
-  public void periodic(ScoringSubsystem scoring) {}
+  public void periodic(ScoringSubsystem scoring) {
+    scoring.stopIndexing();
+    scoring.warmupShooter();
+  }
 
   public void onExit(Transition transition, ScoringSubsystem scoring) {}
 }

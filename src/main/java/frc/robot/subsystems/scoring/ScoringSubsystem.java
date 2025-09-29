@@ -185,12 +185,27 @@ public class ScoringSubsystem extends MonitoredSubsystem {
 
   @Override
   public void monitoredPeriodic() {
+    if (inScoringTestMode() && stateMachine.getCurrentState() != ScoringState.TestMode) {
+      fireTrigger(ScoringTrigger.ScoringTestModeEntered);
+    }
+
     indexer.ifPresent(indexer -> indexer.periodic());
     shooter.ifPresent(shooter -> shooter.periodic());
+
+    stateMachine.periodic();
   }
 
   public void testPeriodic() {
     shooter.ifPresent(shooter -> shooter.testPeriodic());
+  }
+
+  /**
+   * Fire a trigger for the ScoringSubsystem and its state machine
+   *
+   * @param trigger The trigger to fire
+   */
+  public void fireTrigger(ScoringTrigger trigger) {
+    stateMachine.fire(trigger);
   }
 
   /**
@@ -219,24 +234,40 @@ public class ScoringSubsystem extends MonitoredSubsystem {
   /**
    * Warm up the shooter
    *
-   * <p>This method exists to give bindings a temporary way to make the shooter warm up before the
-   * state machine is implemented.
-   *
    * <p>If the shooter isn't enabled in ScoringFeatureFlags, this is a no-op
    */
-  public void tempWarmup() {
+  public void warmupShooter() {
     shooter.ifPresent(shooter -> shooter.warmUp());
   }
 
   /**
    * Stop the shooter
    *
-   * <p>This method exists to give bindings a temporary way to make the shooter stop warming up
-   *
-   * <p>If the shooter isn't enabled in ScoringFeatureFlags, this is a no-op before the state
-   * machine is implemented.
+   * <p>If the shooter isn't enabled in ScoringFeatureFlags, this is a no-op
    */
-  public void tempStopShooter() {
+  public void stopShooter() {
     shooter.ifPresent(shooter -> shooter.stop());
+  }
+
+  /**
+   * Commands the indexer to control to its idle position
+   *
+   * <p>If the indexer isn't enabled in ScoringFeatureFlags, this is a no-op
+   *
+   * <p>This method should ONLY be called by scoring states or test modes
+   */
+  public void stopIndexing() {
+    indexer.ifPresent(indexer -> indexer.stopIndexing());
+  }
+
+  /**
+   * Commands the indexer to control to its top/indexing position
+   *
+   * <p>If the indexer isn't enabled in ScoringFeatureFlags, this is a no-op
+   *
+   * <p>This method should ONLY be called by scoring states or test modes
+   */
+  public void indexIntoShooter() {
+    indexer.ifPresent(indexer -> indexer.indexIntoShooter());
   }
 }
