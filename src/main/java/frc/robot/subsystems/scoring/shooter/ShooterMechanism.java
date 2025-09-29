@@ -15,6 +15,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.util.struct.Struct;
 import edu.wpi.first.util.struct.StructSerializable;
 import frc.robot.TestModeManager;
+import frc.robot.TestModeManager.TestMode;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.scoring.shooter.ShooterIO.ShooterInputs;
 import frc.robot.util.AllianceUtil;
@@ -229,17 +230,22 @@ public class ShooterMechanism {
     Logger.recordOutput("scoring/shooter/leftRPM", leftInputs.motorVelocity.in(RPM));
     Logger.recordOutput("scoring/shooter/rightRPM", rightInputs.motorVelocity.in(RPM));
 
-    switch (action) {
-      case STOP -> {
-        stop();
-      }
-      case WARMUP -> {
-        if (poseSupplierInitialized && poseBasedShooting) {
-          ShooterSpeeds speeds = calculatePoseBasedSpeeds();
-          runSpeeds(speeds);
-        } else {
-          // Fall back to default shot
-          runSpeeds(JsonConstants.shooterConstants.defaultShot);
+    // Don't obey current action when in test mode
+    if (!(TestModeManager.getTestMode() == TestMode.ShooterClosedLoopTuning
+        || TestModeManager.getTestMode() == TestMode.ShooterCurrentTuning
+        || TestModeManager.getTestMode() == TestMode.ShooterVoltageTuning)) {
+      switch (action) {
+        case STOP -> {
+          stop();
+        }
+        case WARMUP -> {
+          if (poseSupplierInitialized && poseBasedShooting) {
+            ShooterSpeeds speeds = calculatePoseBasedSpeeds();
+            runSpeeds(speeds);
+          } else {
+            // Fall back to default shot
+            runSpeeds(JsonConstants.shooterConstants.defaultShot);
+          }
         }
       }
     }
