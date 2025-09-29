@@ -1,18 +1,82 @@
 package frc.robot.subsystems.scoring;
 
+import coppercore.controls.state_machine.StateMachine;
+import coppercore.controls.state_machine.StateMachineConfiguration;
+import coppercore.controls.state_machine.state.PeriodicStateInterface;
+import coppercore.controls.state_machine.state.StateContainer;
 import coppercore.wpilib_interface.MonitoredSubsystem;
 import edu.wpi.first.math.geometry.Pose2d;
+import frc.robot.TestModeManager;
+import frc.robot.TestModeManager.TestMode;
 import frc.robot.subsystems.scoring.shooter.ShooterMechanism;
+import frc.robot.subsystems.scoring.states.IdleState;
+import frc.robot.subsystems.scoring.states.InitState;
+import frc.robot.subsystems.scoring.states.KickState;
+import frc.robot.subsystems.scoring.states.TestModeState;
+import frc.robot.subsystems.scoring.states.WaitToScoreState;
+import frc.robot.subsystems.scoring.states.WarmupState;
 import java.util.Optional;
 import java.util.function.Supplier;
 
 public class ScoringSubsystem extends MonitoredSubsystem {
   private static Optional<ScoringSubsystem> instance = Optional.empty();
 
+  // == MECHANISMS ==
+
   /** The indexer mechanism, which may or may not be enabled */
   private final Optional<IndexerMechanism> indexer;
   /** The shooter mechanism, which may or may not be enabled */
   private final Optional<ShooterMechanism> shooter;
+
+  // == STATE MACHINE ==
+  private enum ScoringState implements StateContainer {
+    Init(new InitState(ScoringSubsystem::getInstance)),
+    TestMode(new TestModeState(ScoringSubsystem::getInstance)),
+    Idle(new IdleState(ScoringSubsystem::getInstance)),
+    Warmup(new WarmupState(ScoringSubsystem::getInstance)),
+    Kick(new KickState(ScoringSubsystem::getInstance)),
+    WaitToScore(new WaitToScoreState(ScoringSubsystem::getInstance));
+
+    private final PeriodicStateInterface state;
+
+    ScoringState(PeriodicStateInterface state) {
+      this.state = state;
+    }
+
+    @Override
+    public PeriodicStateInterface getState() {
+      return state;
+    }
+  }
+
+  /** Triggers for the {@link ScoringSubsystem}'s {@link team401.coppercore.StateMachine} */
+  public enum ScoringTrigger {
+    /** Fired by the InitState after the indexer is homed successfully */
+    Homed,
+    /**
+     * Fired by the ScoringSubsystem in periodic when in a Scoring tuning mode but not in
+     * TestModeState
+     */
+    ScoringTestModeEntered,
+    /** Fired by the TestModeState when no longer in a Scoring test mode */
+    ScoringTestModeExited,
+    /** Fired by a button binding when the warmup button is pressed */
+    WarmupPressed,
+    /** Fired by a button binding when the warmup button is released */
+    WarmupReleased,
+    /** Fired by a button binding when the score button is pressed */
+    ScoreButtonPressed,
+    /** Fired by the WarmupState when the shot is achievable and the shooter is ready */
+    WarmupReady,
+    /** Fired by the KickState when the indexer has moved to the top of its range of motion */
+    Kicked,
+    /** Fired by the WaitToScoreState when the time to wait to score has elapsed */
+    WaitedToScore,
+  }
+
+  private final StateMachineConfiguration<ScoringState, ScoringTrigger> stateMachineConfiguration;
+
+  private final StateMachine<ScoringState, ScoringTrigger> stateMachine;
 
   /**
    * Construct a new ScoringSubsystem
@@ -25,6 +89,48 @@ public class ScoringSubsystem extends MonitoredSubsystem {
   private ScoringSubsystem(Optional<IndexerMechanism> indexer, Optional<ShooterMechanism> shooter) {
     this.indexer = indexer;
     this.shooter = shooter;
+
+    stateMachineConfiguration = new StateMachineConfiguration<>();
+
+    stateMachineConfiguration
+        .configure(ScoringState.Init)
+        .permitIf(ScoringTrigger.Homed, ScoringState.TestMode, ScoringSubsystem::inScoringTestMode)
+        .permit(ScoringTrigger.Homed, ScoringState.Idle);
+
+    stateMachineConfiguration
+        .configure(ScoringState.TestMode)
+        .permitIf(
+            ScoringTrigger.ScoringTestModeExited,
+            ScoringState.Idle,
+            () -> !ScoringSubsystem.inScoringTestMode());
+
+    stateMachineConfiguration
+        .configure(ScoringState.Idle)
+        .permit(ScoringTrigger.WarmupPressed, ScoringState.Warmup)
+        .permit(ScoringTrigger.ScoringTestModeEntered, ScoringState.TestMode);
+
+    stateMachineConfiguration
+        .configure(ScoringState.Warmup)
+        .permit(ScoringTrigger.WarmupReleased, ScoringState.Idle)
+        .permit(ScoringTrigger.ScoreButtonPressed, ScoringState.Kick)
+        .permit(
+            ScoringTrigger.WarmupReady,
+            ScoringState
+                .Kick); // TODO: Add a way to disable "autonomous" score transitioning if we lose
+    // trust in vision.
+
+    stateMachineConfiguration
+        .configure(ScoringState.Kick)
+        .permit(ScoringTrigger.Kicked, ScoringState.WaitToScore);
+
+    stateMachineConfiguration
+        .configure(ScoringState.WaitToScore)
+        .permit(ScoringTrigger.WaitedToScore, ScoringState.Idle);
+
+    // Create the scoring state machine, starting in Init state
+    // This does not automatically call InitState.onEntry, therefore it must be called in the create
+    // method, since calling it here would be leaking `this` in the constructor.
+    stateMachine = new StateMachine<>(stateMachineConfiguration, ScoringState.Init);
   }
 
   // Create method architecture suggested by OpenAI ChatGPT, although no generated code has been
@@ -85,6 +191,29 @@ public class ScoringSubsystem extends MonitoredSubsystem {
 
   public void testPeriodic() {
     shooter.ifPresent(shooter -> shooter.testPeriodic());
+  }
+
+  /**
+   * Check whether or not the robot is currently in a Scoring test mode.
+   *
+   * <p>If the robot is not in test mode, or test mode chooser hasn't been initialized, this method
+   * will return false.
+   *
+   * <p>The list of test modes that qualify as scoring test modes is as followed:
+   *
+   * <ul>
+   *   <li>Shooter Closed Loop Tuning
+   *   <li>Shooter Current Open-Loop Tuning
+   *   <li>Shooter Voltage Open-Loop Tuning
+   * </ul>
+   *
+   * @return True if the robot is enabled in test mode and a scoring test mode is selected, false if
+   *     not
+   */
+  public static boolean inScoringTestMode() {
+    return TestModeManager.getTestMode() == TestMode.ShooterClosedLoopTuning
+        || TestModeManager.getTestMode() == TestMode.ShooterCurrentTuning
+        || TestModeManager.getTestMode() == TestMode.ShooterVoltageTuning;
   }
 
   /**
