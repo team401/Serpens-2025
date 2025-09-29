@@ -28,7 +28,6 @@ import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.scoring.ScoringSubsystem;
-import frc.robot.subsystems.intake.IntakeSubsystem;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -40,7 +39,7 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 public class RobotContainer {
   // Subsystems
   private Drive drive = null;
-  private IntakeSubsystem intake = null; 
+  private IntakeSubsystem intake = null;
   private ScoringSubsystem scoring = null;
   // Controller
   private final CommandXboxController controller = new CommandXboxController(0);

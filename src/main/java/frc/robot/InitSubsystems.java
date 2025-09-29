@@ -26,24 +26,6 @@ import frc.robot.subsystems.scoring.shooter.ShooterMechanism;
 import java.util.Optional;
 
 public final class InitSubsystems {
-  public static IntakeSubsystem initIntake() {
-    return switch (ModeConstants.CURRENT_MODE) {
-      case REAL ->
-      // Real robot, instantiate hardware IO implementations
-      new IntakeSubsystem(
-          new IntakeArmMechanism(new IntakeArmIOTalonFX()),
-          new IntakeRollerMechanism(new IntakeRollerIOTalonFX()));
-      case SIM ->
-      // Sim robot, instantiate physics sim IO implementations
-      new IntakeSubsystem(
-          new IntakeArmMechanism(new IntakeArmIOSim()),
-          new IntakeRollerMechanism(new IntakeRollerIOSim()));
-      default -> throw new UnsupportedOperationException(
-          "Non-exhaustive list of mode types supported in InitSubsystems");
-        // Replayed robot, disable IO implementations
-
-    };
-  }
 
   public static IntakeSubsystem initIntake() {
     return switch (ModeConstants.CURRENT_MODE) {
