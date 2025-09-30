@@ -157,6 +157,8 @@ public class ScoringSubsystem extends MonitoredSubsystem {
 
     instance = Optional.of(createdInstance);
 
+    createdInstance.stateMachine.getCurrentState().state.onEntry(null);
+
     return createdInstance;
   }
 
@@ -269,5 +271,50 @@ public class ScoringSubsystem extends MonitoredSubsystem {
    */
   public void indexIntoShooter() {
     indexer.ifPresent(indexer -> indexer.indexIntoShooter());
+  }
+
+  /**
+   * Commands the indexer to drive downward to home into the bottom hardstop
+   *
+   * <p>If the indexer isn't enabled in ScoringFeatureFlags, this is a no-op
+   *
+   * <p>This method should ONLY be called by scoring states or test modes
+   */
+  public void startHomingIndexer() {
+    indexer.ifPresent(indexer -> indexer.startHoming());
+  }
+
+  /**
+   * Checks whether or not the indexer is currently moving.
+   * 
+   * @return True if the indexer is moving, false if the indexer isn't moving or doesn't exist
+   */
+  public boolean isIndexerMoving() {
+    return indexer.map(indexer -> indexer.isMoving()).orElse(false);
+  }
+
+  /**
+   * Seed the indexer's position measurement at the bottom of its range of motion
+   * 
+   * <p>This method should be called by InitState when it is sure that the indexer is touching the bottom hardstop.
+   *
+   * <p>If the indexer isn't enabled in ScoringFeatureFlags, this is a no-op
+   *
+   * <p>This method should ONLY be called by scoring states or test modes
+   */
+  public void seedIndexerAtBottom() {
+    indexer.ifPresent(indexer -> indexer.seedAtBottom());
+  }
+
+  /**
+   * Checks whether the indexer's position measurement has been seeded/initialized
+   * 
+   * <p>If this value is false, the indexer's position is unknown and closed-loop control cannot safely be used.
+   * 
+   * <p>If the Indexer is disabled in ScoringFeatureFlags, this will default to true since no homing action needs to occur.
+   * @return True if the indexer has been seeded or doesn't exist, false if the indexer has not been seeded.
+   */
+  public boolean hasIndexerSeeded() {
+    return indexer.map(indexer -> indexer.hasBeenSeeded()).orElse(true);
   }
 }
