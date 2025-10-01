@@ -186,16 +186,13 @@ public class ShooterMechanism {
   }
 
   /**
-   * Set the pose supplier used by the Shooter for RPM calculations and enable pose based shooting.
+   * Set the pose supplier used by the Shooter for RPM calculations
    *
    * @param newPoseSupplier The new supplier for poses to use in distance calculations
    */
   public void initializePoseSupplier(Supplier<Pose2d> newPoseSupplier) {
     poseSupplier = newPoseSupplier;
-    if (!poseSupplierInitialized) {
-      poseSupplierInitialized = true;
-      poseBasedShooting = true;
-    }
+    poseSupplierInitialized = true;
   }
 
   /**
@@ -204,8 +201,15 @@ public class ShooterMechanism {
    * <p>This method should be called to enable/disable vision-based shots whenever we gain/lose
    * confidence in vision & odometry
    *
+   * <p>NOTE: This value is also used to determine if the scoring subsystem should automatically
+   * transition from Warmup to Kick: When pose-based shooting is enabled, the scoring subsystem will
+   * automatically take shots when it determines that it is warmed up and ready (the shoot button
+   * can also be used to manually "force-score", which will kick the ball if the regardless of shot
+   * attainability). When pose-based shooting is disabled, the score button must be pressed to
+   * actually kick the algae into the shooter.
+   *
    * <p>If initializePoseSupplier has never been called, poseBasedShootingEnabled will be ignored
-   * until it is initialized. This means that, if this method is called with `true`, nothing wil
+   * until it is initialized. This means that, if this method is called with `true`, nothing will
    * happen until the pose supplier is initialized, after which the shooter will begin using
    * pose-based shooting.
    *

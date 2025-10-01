@@ -3,6 +3,7 @@ package frc.robot;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.scoring.ScoringSubsystem;
+import frc.robot.subsystems.scoring.ScoringSubsystem.ScoringTrigger;
 
 /** Methods to initialize bindings for each subsystems */
 public final class InitBindings {
@@ -21,12 +22,12 @@ public final class InitBindings {
         .onTrue(
             new InstantCommand(
                 () -> {
-                  scoring.warmupShooter();
+                  scoring.fireTrigger(ScoringTrigger.WarmupPressed);
                 }))
         .onFalse(
             new InstantCommand(
                 () -> {
-                  scoring.stopShooter();
+                  scoring.fireTrigger(ScoringTrigger.WarmupReleased);
                 }));
 
     scoring.initializeShootPressedSupplier(() -> controller.rightBumper().getAsBoolean());

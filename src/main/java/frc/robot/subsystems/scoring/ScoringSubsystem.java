@@ -66,15 +66,13 @@ public class ScoringSubsystem extends MonitoredSubsystem {
     /** Fired by a button binding when the warmup button is released */
     WarmupReleased,
     /**
-     * Fired by the WarmupState when the shot is achievable and the shooter is ready
+     * Fired by the WarmupState when the shooter is ready (both motors are at their goal RPM)
      *
      * <p>This should cause a transition to "Kick" state when:
      *
      * <ul>
      *   <li>The manual score button is pressed
-     *   <li>Pose-based shooting is enabled (when pose-based shooting is enabled, the WarmupReady
-     *       trigger will only be fired when the shot is attainable, indicating that the odometry
-     *       pose is in a correct location to score.)
+     *   <li>Pose-based shooting is enabled and the shot is attainable
      */
     WarmupReady,
     /** Fired by the KickState when the indexer has moved to the top of its range of motion */
@@ -130,12 +128,7 @@ public class ScoringSubsystem extends MonitoredSubsystem {
         .permitIf(
             ScoringTrigger.WarmupReady,
             ScoringState.Kick,
-            () ->
-                shooter
-                    // Had to name it shooterInstance here because you can't rebind a local variable
-                    // in a lambda expression
-                    .map(shooterInstance -> shooterInstance.isPoseBasedShootingEnabled())
-                    .orElse(false));
+            () -> isPoseBasedShootingEnabled() && isShotAttainable());
 
     stateMachineConfiguration
         .configure(ScoringState.Kick)
@@ -324,7 +317,7 @@ public class ScoringSubsystem extends MonitoredSubsystem {
    * @see frc.robot.subsystems.scoring.shooter.ShooterMechanism#isShotAttainable
    * @return
    */
-  public boolean isShotAttainable() {
+  private boolean isShotAttainable() {
     return shooter.map(shooter -> shooter.isShotAttainable()).orElse(false);
   }
 

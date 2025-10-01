@@ -17,12 +17,7 @@ public class WarmupState extends BaseScoringState {
     scoring.stopIndexing();
     scoring.warmupShooter();
 
-    // If the shooter is ready, we can fire WarmupReady if:
-    // - Pose-based shooting is enabled and the shot is attainable
-    // - Pose-based shooting is not enabled
-    if (scoring.isShooterReady()
-        && ((scoring.isPoseBasedShootingEnabled() && scoring.isShotAttainable())
-            || (!scoring.isPoseBasedShootingEnabled()))) {
+    if (scoring.isShooterReady()) {
       scoring.fireTrigger(ScoringTrigger.WarmupReady);
     }
   }
