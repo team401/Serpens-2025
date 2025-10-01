@@ -1,4 +1,5 @@
 {
+  "CANBusName": "canivore",
   "shooterLeftMotorID": 13,
   "shooterRightMotorID": 14,
   "deviceConnectedDebounceTime": {

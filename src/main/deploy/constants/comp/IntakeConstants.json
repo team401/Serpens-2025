@@ -1,6 +1,6 @@
 {
   "CANBusName": "canivore",
-  "intakeArmMotorId": 9,
+  "intakeArmMotorId": 21,
   "intakeRollerMotorId": 10,
   "rollerInverted": "Clockwise_Positive",
   "intakeArmEncoderDiscontinuityPoint": 1.0,
@@ -8,7 +8,7 @@
     "value": 0.0,
     "unit": "Radian"
   },
-  "intakeArmEncoderID": 11,
+  "intakeArmEncoderID": 22,
   "intakeArmEncoderDirection": "Clockwise_Positive",
   "intakeArmCollectionAngle": {
     "value": 65.0,
