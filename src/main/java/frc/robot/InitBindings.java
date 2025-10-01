@@ -28,5 +28,7 @@ public final class InitBindings {
                 () -> {
                   scoring.stopShooter();
                 }));
+
+    scoring.initializeShootPressedSupplier(() -> controller.rightBumper().getAsBoolean());
   }
 }

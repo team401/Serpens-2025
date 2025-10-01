@@ -2,6 +2,7 @@ package frc.robot.subsystems.scoring.states;
 
 import coppercore.controls.state_machine.transition.Transition;
 import frc.robot.subsystems.scoring.ScoringSubsystem;
+import frc.robot.subsystems.scoring.ScoringSubsystem.ScoringTrigger;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -15,6 +16,10 @@ public class KickState extends BaseScoringState {
   public void periodic(ScoringSubsystem scoring) {
     scoring.indexIntoShooter();
     scoring.warmupShooter();
+
+    if (scoring.hasIndexerKicked()) {
+      scoring.fireTrigger(ScoringTrigger.Kicked);
+    }
   }
 
   public void onExit(Transition transition, ScoringSubsystem scoring) {}

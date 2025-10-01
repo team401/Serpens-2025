@@ -8,7 +8,6 @@ import edu.wpi.first.wpilibj.Timer;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.scoring.ScoringSubsystem;
 import frc.robot.subsystems.scoring.ScoringSubsystem.ScoringTrigger;
-
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -60,10 +59,12 @@ public class InitState extends BaseScoringState {
     } else {
       // If the indexer is not moving
       if (hasMoved) {
-        // If indexer has moved and is now not moving, it has moved and has come to rest, and therefore is at the bottom
+        // If indexer has moved and is now not moving, it has moved and has come to rest, and
+        // therefore is at the bottom
         System.out.println("INDEXER: Homed by moving and then stopping");
         seedAtBottomAndExit(scoring);
-      } else if (homingTimer.hasElapsed(JsonConstants.scoringConstants.homingMaxUnmovingTime.in(Seconds))) {
+      } else if (homingTimer.hasElapsed(
+          JsonConstants.scoringConstants.homingMaxUnmovingTime.in(Seconds))) {
         System.out.println("INDEXER: Homed by never moving");
         seedAtBottomAndExit(scoring);
       }
@@ -81,7 +82,8 @@ public class InitState extends BaseScoringState {
   }
 
   /**
-   * Seed the indexer at the bottom of its range of motion and fire the {@code Homed} trigger to exit the state.
+   * Seed the indexer at the bottom of its range of motion and fire the {@code Homed} trigger to
+   * exit the state.
    */
   private void seedAtBottomAndExit(ScoringSubsystem scoring) {
     scoring.seedIndexerAtBottom();

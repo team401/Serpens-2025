@@ -16,6 +16,7 @@ import frc.robot.subsystems.scoring.states.TestModeState;
 import frc.robot.subsystems.scoring.states.WaitToScoreState;
 import frc.robot.subsystems.scoring.states.WarmupState;
 import java.util.Optional;
+import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
 public class ScoringSubsystem extends MonitoredSubsystem {
@@ -64,9 +65,17 @@ public class ScoringSubsystem extends MonitoredSubsystem {
     WarmupPressed,
     /** Fired by a button binding when the warmup button is released */
     WarmupReleased,
-    /** Fired by a button binding when the score button is pressed */
-    ScoreButtonPressed,
-    /** Fired by the WarmupState when the shot is achievable and the shooter is ready */
+    /**
+     * Fired by the WarmupState when the shot is achievable and the shooter is ready
+     *
+     * <p>This should cause a transition to "Kick" state when:
+     *
+     * <ul>
+     *   <li>The manual score button is pressed
+     *   <li>Pose-based shooting is enabled (when pose-based shooting is enabled, the WarmupReady
+     *       trigger will only be fired when the shot is attainable, indicating that the odometry
+     *       pose is in a correct location to score.)
+     */
     WarmupReady,
     /** Fired by the KickState when the indexer has moved to the top of its range of motion */
     Kicked,
@@ -77,6 +86,9 @@ public class ScoringSubsystem extends MonitoredSubsystem {
   private final StateMachineConfiguration<ScoringState, ScoringTrigger> stateMachineConfiguration;
 
   private final StateMachine<ScoringState, ScoringTrigger> stateMachine;
+
+  // == SUPPLIERS ==
+  private BooleanSupplier shootPressedSupplier = () -> false;
 
   /**
    * Construct a new ScoringSubsystem
@@ -112,12 +124,18 @@ public class ScoringSubsystem extends MonitoredSubsystem {
     stateMachineConfiguration
         .configure(ScoringState.Warmup)
         .permit(ScoringTrigger.WarmupReleased, ScoringState.Idle)
-        .permit(ScoringTrigger.ScoreButtonPressed, ScoringState.Kick)
-        .permit(
+        // If the score button is pressed, allow transitioning to "Kick"
+        .permitIf(ScoringTrigger.WarmupReady, ScoringState.Kick, shootPressedSupplier::getAsBoolean)
+        // If pose-based-shooting is enabled, allow transitioning to "Kick"
+        .permitIf(
             ScoringTrigger.WarmupReady,
-            ScoringState
-                .Kick); // TODO: Add a way to disable "autonomous" score transitioning if we lose
-    // trust in vision.
+            ScoringState.Kick,
+            () ->
+                shooter
+                    // Had to name it shooterInstance here because you can't rebind a local variable
+                    // in a lambda expression
+                    .map(shooterInstance -> shooterInstance.isPoseBasedShootingEnabled())
+                    .orElse(false));
 
     stateMachineConfiguration
         .configure(ScoringState.Kick)
@@ -172,6 +190,16 @@ public class ScoringSubsystem extends MonitoredSubsystem {
    */
   public void initializeShooterPoseSupplier(Supplier<Pose2d> newPoseSupplier) {
     shooter.ifPresent(shooter -> shooter.initializePoseSupplier(newPoseSupplier));
+  }
+
+  /**
+   * Initialize the supplier for whether or not the shoot button is pressed.
+   *
+   * @param newShootPressedSupplier A BooleanSupplier that returns true when shoot is pressed and
+   *     false when it is not.
+   */
+  public void initializeShootPressedSupplier(BooleanSupplier newShootPressedSupplier) {
+    shootPressedSupplier = newShootPressedSupplier;
   }
 
   /**
@@ -233,6 +261,7 @@ public class ScoringSubsystem extends MonitoredSubsystem {
         || TestModeManager.getTestMode() == TestMode.ShooterVoltageTuning;
   }
 
+  // == SHOOTER PASSTHROUGH ==
   /**
    * Warm up the shooter
    *
@@ -251,6 +280,55 @@ public class ScoringSubsystem extends MonitoredSubsystem {
     shooter.ifPresent(shooter -> shooter.stop());
   }
 
+  /**
+   * Can the state machine automatically transition from Warmup to Kick when ready?
+   *
+   * <p>This is true when pose-based-shooting is enabled in the shooter.
+   *
+   * <p>If the shooter isn't enabled in ScoringFeatureFlags, this will return false.
+   *
+   * @return True if pose-based-shooting is enabled, false if not (or if the shooter doesn't exist).
+   */
+  public boolean canAutoKick() {
+    return shooter.map(shooter -> shooter.isPoseBasedShootingEnabled()).orElse(false);
+  }
+
+  /**
+   * Check if the shooter flywheels are at their goal speeds.
+   *
+   * <p>This returns true if the shooter is disabled in ScoringFeatureFlags
+   *
+   * @return
+   */
+  public boolean isShooterReady() {
+    return shooter.map(shooter -> shooter.atGoalSpeeds()).orElse(true);
+  }
+
+  /**
+   * Check if pose-based shooting is enabled in the shooter mechanism
+   *
+   * <p>This defaults to false if the shooter is disabled in ScoringFeatureFlags
+   *
+   * @return True if pose-based shooting is enabled, false if it's disabled or the shooter doesn't
+   *     exist
+   */
+  public boolean isPoseBasedShootingEnabled() {
+    return shooter.map(shooter -> shooter.isPoseBasedShootingEnabled()).orElse(false);
+  }
+
+  /**
+   * Is the shooter shot currently attainable?
+   *
+   * <p>Defaults to false if the shooter is disabled in ScoringFeatureFlags.
+   *
+   * @see frc.robot.subsystems.scoring.shooter.ShooterMechanism#isShotAttainable
+   * @return
+   */
+  public boolean isShotAttainable() {
+    return shooter.map(shooter -> shooter.isShotAttainable()).orElse(false);
+  }
+
+  // == INDEXER PASSTHROUGH ==
   /**
    * Commands the indexer to control to its idle position
    *
@@ -286,7 +364,7 @@ public class ScoringSubsystem extends MonitoredSubsystem {
 
   /**
    * Checks whether or not the indexer is currently moving.
-   * 
+   *
    * @return True if the indexer is moving, false if the indexer isn't moving or doesn't exist
    */
   public boolean isIndexerMoving() {
@@ -295,8 +373,9 @@ public class ScoringSubsystem extends MonitoredSubsystem {
 
   /**
    * Seed the indexer's position measurement at the bottom of its range of motion
-   * 
-   * <p>This method should be called by InitState when it is sure that the indexer is touching the bottom hardstop.
+   *
+   * <p>This method should be called by InitState when it is sure that the indexer is touching the
+   * bottom hardstop.
    *
    * <p>If the indexer isn't enabled in ScoringFeatureFlags, this is a no-op
    *
@@ -308,13 +387,30 @@ public class ScoringSubsystem extends MonitoredSubsystem {
 
   /**
    * Checks whether the indexer's position measurement has been seeded/initialized
-   * 
-   * <p>If this value is false, the indexer's position is unknown and closed-loop control cannot safely be used.
-   * 
-   * <p>If the Indexer is disabled in ScoringFeatureFlags, this will default to true since no homing action needs to occur.
-   * @return True if the indexer has been seeded or doesn't exist, false if the indexer has not been seeded.
+   *
+   * <p>If this value is false, the indexer's position is unknown and closed-loop control cannot
+   * safely be used.
+   *
+   * <p>If the Indexer is disabled in ScoringFeatureFlags, this will default to true since no homing
+   * action needs to occur.
+   *
+   * @return True if the indexer has been seeded or doesn't exist, false if the indexer has not been
+   *     seeded.
    */
   public boolean hasIndexerSeeded() {
     return indexer.map(indexer -> indexer.hasBeenSeeded()).orElse(true);
+  }
+
+  /**
+   * Check whether the indexer is at the top of its range of motion.
+   *
+   * <p>When the indexer is disabled in ScoringFeatureFlags, this value defaults to true.
+   *
+   * @see frc.robot.subsystems.scoring.IndexerMechanism#isAtTop()
+   * @return True if the indexer is at the top of its range of motion or is disabled, false if the
+   *     indexer is not at the top of its range of motion.
+   */
+  public boolean hasIndexerKicked() {
+    return indexer.map(indexer -> indexer.isAtTop()).orElse(true);
   }
 }

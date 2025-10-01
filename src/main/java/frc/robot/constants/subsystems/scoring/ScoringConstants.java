@@ -27,11 +27,13 @@ public class ScoringConstants {
   public final Time homingMaxUnmovingTime = Seconds.of(0.3);
 
   /**
-   * The maximum amount of time that homing can take place before it is assumed that the indexer must be at the bottom.
-   * 
-   * <p>This value exists because, if the indexer is homing for a certain ridiculous period of time, the code should not freeze.
-   * 
-   * TODO: evaluate whether it would be better to disable motors in this case
+   * The maximum amount of time that homing can take place before it is assumed that the indexer
+   * must be at the bottom.
+   *
+   * <p>This value exists because, if the indexer is homing for a certain ridiculous period of time,
+   * the code should not freeze.
+   *
+   * <p>TODO: evaluate whether it would be better to disable motors in this case
    */
   public final Time homingMaxTime = Seconds.of(1.0);
 }
