@@ -3,6 +3,7 @@ package frc.robot.constants.subsystems.intake; // NOTE: This should be changed i
 // separate package from your code
 
 import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.RPM;
@@ -40,7 +41,7 @@ public final class IntakeConstants {
   public final String CANBusName = "canivore";
 
   public final Integer intakeArmMotorId = 21; // TODO: Replace placeholder CAN ID
-  public final Integer intakeRollerMotorId = 10; // TODO: Replace placeholder CAN ID
+  public final Integer intakeRollerMotorId = 30; // TODO: Replace placeholder CAN ID
 
   /**
    * What point in the sensor's range the discontinuity occurs. Results in a range of [1-x, x). For
@@ -161,17 +162,16 @@ public final class IntakeConstants {
     public final Double velocityStdDev = 0.0;
 
     @JSONExclude
-    public final MomentOfInertia intakeArmMomentOfInertia = KilogramSquareMeters.of(0.03);
+    public final MomentOfInertia intakeArmMomentOfInertia = KilogramSquareMeters.of(0.05);
 
     @JSONExclude
-    public final MomentOfInertia intakeRollerMomentOfInertia =
-        KilogramSquareMeters.of(0.05); // TODO: Replace placeholder moment of inertia
+    public final MomentOfInertia intakeRollerMomentOfInertia = KilogramSquareMeters.of(0.000031);
 
     public final Distance intakeArmArmLength = Meters.of(.3048);
     public final Angle intakeArmMinAngle =
-        Radians.of(0.0); // TODO: Update placeholder min & max angles
-    public final Angle intakeArmMaxAngle = Radians.of(1.0);
+        Radians.of(75.5); // TODO: Update placeholder min & max angles
+    public final Angle intakeArmMaxAngle = Degrees.of(146.7); // Get better values off of robot
 
-    public final Angle intakeArmStartingAngle = Radians.of(0.0);
+    public final Angle intakeArmStartingAngle = Degrees.of(75.3); // Get better values off of robot
   }
 }

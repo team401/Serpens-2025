@@ -51,6 +51,9 @@ public class IntakeArmIOSim extends IntakeArmIOTalonFX {
     AngularVelocity intakeArmVelocity = RadiansPerSecond.of(intakeArmSim.getVelocityRadPerSec());
 
     Angle diffAngle = intakeArmAngle.minus(lastIntakeArmAngle);
+    intakeArmEncoderSimState.addPosition(diffAngle);
+    intakeArmEncoderSimState.setVelocity(intakeArmVelocity);
+
     lastIntakeArmAngle.mut_replace(intakeArmAngle);
 
     // 1:1 ratio of IntakeArm to CANcoder makes this math very easy

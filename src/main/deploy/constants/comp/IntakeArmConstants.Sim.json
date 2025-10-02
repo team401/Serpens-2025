@@ -6,15 +6,15 @@
     "unit": "Meter"
   },
   "intakeArmMinAngle": {
-    "value": 0.0,
+    "value": 75.5,
     "unit": "Radian"
   },
   "intakeArmMaxAngle": {
-    "value": 1.0,
-    "unit": "Radian"
+    "value": 104.34,
+    "unit": "Degree"
   },
   "intakeArmStartingAngle": {
-    "value": 0.0,
-    "unit": "Radian"
+    "value": 75.5,
+    "unit": "Degree"
   }
 }

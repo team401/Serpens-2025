@@ -1,7 +1,7 @@
 {
   "CANBusName": "canivore",
   "intakeArmMotorId": 21,
-  "intakeRollerMotorId": 10,
+  "intakeRollerMotorId": 30,
   "rollerInverted": "Clockwise_Positive",
   "intakeArmEncoderDiscontinuityPoint": 1.0,
   "intakeArmEncoderMagnetOffset": {
