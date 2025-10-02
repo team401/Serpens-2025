@@ -9,6 +9,13 @@ import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
+import frc.robot.subsystems.intake.IntakeArmIOSim;
+import frc.robot.subsystems.intake.IntakeArmIOTalonFX;
+import frc.robot.subsystems.intake.IntakeArmMechanism;
+import frc.robot.subsystems.intake.IntakeRollerIOSim;
+import frc.robot.subsystems.intake.IntakeRollerIOTalonFX;
+import frc.robot.subsystems.intake.IntakeRollerMechanism;
+import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.scoring.IndexerMechanism;
 import frc.robot.subsystems.scoring.ScoringSubsystem;
 import frc.robot.subsystems.scoring.shooter.ShooterIO;
@@ -19,6 +26,26 @@ import frc.robot.subsystems.scoring.shooter.ShooterMechanism;
 import java.util.Optional;
 
 public final class InitSubsystems {
+
+  public static IntakeSubsystem initIntake() {
+    return switch (ModeConstants.CURRENT_MODE) {
+      case REAL ->
+      // Real robot, instantiate hardware IO implementations
+      new IntakeSubsystem(
+          new IntakeArmMechanism(new IntakeArmIOTalonFX()),
+          new IntakeRollerMechanism(new IntakeRollerIOTalonFX()));
+      case SIM ->
+      // Sim robot, instantiate physics sim IO implementations
+      new IntakeSubsystem(
+          new IntakeArmMechanism(new IntakeArmIOSim()),
+          new IntakeRollerMechanism(new IntakeRollerIOSim()));
+      default -> throw new UnsupportedOperationException(
+          "Non-exhaustive list of mode types supported in InitSubsystems");
+        // Replayed robot, disable IO implementations
+
+    };
+  }
+
   public static Drive initDrive() {
     return switch (ModeConstants.CURRENT_MODE) {
       case REAL ->
@@ -29,7 +56,6 @@ public final class InitSubsystems {
           new ModuleIOTalonFX(TunerConstants.FrontRight),
           new ModuleIOTalonFX(TunerConstants.BackLeft),
           new ModuleIOTalonFX(TunerConstants.BackRight));
-
       case SIM ->
       // Sim robot, instantiate physics sim IO implementations
       new Drive(

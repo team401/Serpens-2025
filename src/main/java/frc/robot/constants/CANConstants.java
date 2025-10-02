@@ -25,7 +25,7 @@ public class CANConstants {
   public final Integer shooterRightMotorID = 14;
 
   // This value is a Double because Frequency doesn't have a type adapter in JSONSync yet
-  public final Frequency updateFrequency = Hertz.of(50.0);
+  @JSONExclude public final Frequency updateFrequency = Hertz.of(50.0);
 
   public final Time deviceConnectedDebounceTime = Seconds.of(0.5);
 }

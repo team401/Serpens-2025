@@ -23,8 +23,10 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
+import frc.robot.constants.FeatureFlags;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.scoring.ScoringSubsystem;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
@@ -37,8 +39,8 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 public class RobotContainer {
   // Subsystems
   private Drive drive = null;
+  private IntakeSubsystem intake = null;
   private ScoringSubsystem scoring = null;
-
   // Controller
   private final CommandXboxController controller = new CommandXboxController(0);
 
@@ -73,6 +75,8 @@ public class RobotContainer {
 
     // Configure the button bindings
     configureButtonBindings();
+
+    TestModeManager.init();
   }
 
   private void loadConstants() {
@@ -82,6 +86,9 @@ public class RobotContainer {
   public void configureSubsystems() {
     if (JsonConstants.featureFlags.runDrive) {
       drive = InitSubsystems.initDrive();
+    }
+    if (FeatureFlags.synced.getObject().runIntake) {
+      intake = InitSubsystems.initIntake();
     }
 
     if (JsonConstants.featureFlags.runScoring) {
@@ -155,6 +162,9 @@ public class RobotContainer {
   public void testPeriodic() {
     if (JsonConstants.featureFlags.runScoring) {
       scoring.testPeriodic();
+    }
+    if (JsonConstants.featureFlags.runIntake) {
+      intake.testPeriodic();
     }
   }
 }

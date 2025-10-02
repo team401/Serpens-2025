@@ -1,0 +1,20 @@
+{
+  "positionStdDev": 0.0,
+  "velocityStdDev": 0.0,
+  "intakeArmArmLength": {
+    "value": 0.3048,
+    "unit": "Meter"
+  },
+  "intakeArmMinAngle": {
+    "value": 75.5,
+    "unit": "Radian"
+  },
+  "intakeArmMaxAngle": {
+    "value": 104.34,
+    "unit": "Degree"
+  },
+  "intakeArmStartingAngle": {
+    "value": 75.5,
+    "unit": "Degree"
+  }
+}

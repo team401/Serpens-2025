@@ -15,6 +15,7 @@ public final class FeatureFlags {
           new JSONSyncConfigBuilder().setPrettyPrinting(true).build());
 
   public final Boolean runDrive = true;
+  public final Boolean runIntake = true;
 
   public final Boolean runScoring = true;
 }

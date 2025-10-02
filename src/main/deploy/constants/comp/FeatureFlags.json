@@ -1,4 +1,5 @@
 {
   "runDrive": true,
-  "runScoring": true
+  "runScoring": true,
+  "runIntake": true
 }
