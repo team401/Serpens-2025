@@ -1,98 +1,85 @@
 package frc.robot.subsystems.scoring;
 
-import edu.wpi.first.units.AngularAccelerationUnit;
-import edu.wpi.first.units.AngularVelocityUnit;
-import edu.wpi.first.units.Units;
-import edu.wpi.first.units.VoltageUnit;
+import static edu.wpi.first.units.Units.KilogramSquareMeters;
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+
+import com.ctre.phoenix6.sim.TalonFXSimState;
+import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.first.units.measure.Per;
-import edu.wpi.first.units.measure.Voltage;
-import frc.robot.subsystems.scoring.IndexerIO.IndexerInputs;
+import edu.wpi.first.units.measure.MutAngle;
+import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
+import frc.robot.constants.JsonConstants;
+import org.littletonrobotics.junction.Logger;
 
-public class IndexerIOSim implements IndexerIO {
+public class IndexerIOSim extends IndexerIOTalonFX {
 
-  private double positionRot = 0.0;
-  private double velocityRps = 0.0;
-  private double appliedVoltage = 0.0;
+  TalonFXSimState indexerMotorSimState = indexerMotor.getSimState();
 
-  private boolean brakeMode = true;
-  private boolean motorsDisabled = false;
-  private boolean overrideMode = false;
+  private final SingleJointedArmSim indexerSim =
+      new SingleJointedArmSim(
+          DCMotor.getKrakenX60Foc(1),
+          JsonConstants.indexerConstants.indexerReduction,
+          JsonConstants.indexerConstantsSim.indexerMomentOfInertia.in(KilogramSquareMeters),
+          JsonConstants.indexerConstantsSim.indexerArmLength.in(Meters),
+          JsonConstants.indexerConstantsSim.indexerMinAngle.in(Radians),
+          JsonConstants.indexerConstantsSim.indexerMaxAngle.in(Radians),
+          true,
+          JsonConstants.indexerConstantsSim.indexerStartingAngle.in(Radians));
 
-  // crude simulation constants
-  private static final double kSimInertia = 0.0; // "flywheel" inertia
-  private static final double kSimKv = 0.0; // RPS per volt
-  private static final double kSimKa = 0.0; // acceleration per volt
-  private static final double kSimDt = 0.0; // 20ms loop
+  public IndexerIOSim(TalonFXSimState indexerMotorSimState) {
+    this.indexerMotorSimState = indexerMotorSimState;
+  }
+
+  public IndexerIOSim(MutAngle lastIndexerAngle) {
+    this.lastIndexerAngle = lastIndexerAngle;
+  }
+
+  public SingleJointedArmSim getIndexerSim() {
+    return indexerSim;
+  }
+
+  public IndexerIOSim(TalonFXSimState indexerMotorSimState, MutAngle lastIndexerAngle) {
+    this.indexerMotorSimState = indexerMotorSimState;
+    this.lastIndexerAngle = lastIndexerAngle;
+  }
+
+  public IndexerIOSim() {
+    super();
+
+    // Initialize sim state so that the first periodic runs with accurate data
+    updateSimState();
+  }
+
+  MutAngle lastIndexerAngle = Radians.mutable(0.0);
+
+  private void updateSimState() {
+    Angle indexerAngle = Radians.of(indexerSim.getAngleRads());
+    AngularVelocity indexerVelocity = RadiansPerSecond.of(indexerSim.getVelocityRadPerSec());
+
+    Angle diffAngle = indexerAngle.minus(lastIndexerAngle);
+    lastIndexerAngle.mut_replace(indexerAngle);
+
+    Angle rotorDiffAngle = diffAngle.times(JsonConstants.indexerConstants.indexerReduction);
+    AngularVelocity rotorVelocity =
+        indexerVelocity.times(JsonConstants.indexerConstants.indexerReduction);
+
+    indexerMotorSimState.addRotorPosition(rotorDiffAngle);
+    indexerMotorSimState.setRotorVelocity(rotorVelocity);
+    indexerMotorSimState.setSupplyVoltage(RobotController.getBatteryVoltage());
+
+    indexerSim.setInputVoltage(indexerMotorSimState.getMotorVoltage());
+
+    Logger.recordOutput("indexerSim/position", indexerAngle.in(Radians));
+  }
 
   @Override
   public void updateInputs(IndexerInputs inputs) {
-    // integrate physics ??
-    if (!motorsDisabled) {
-      double accel = (appliedVoltage * kSimKa) - (velocityRps * 0.0);
-      velocityRps += accel * kSimDt;
-      positionRot += velocityRps * kSimDt;
-    } else {
-      if (brakeMode) velocityRps = 0.0;
-    }
+    updateSimState();
 
-    // populate inputs
-    inputs.isIndexerEncoderConnected = true;
-    inputs.indexerPosition.mut_replace(positionRot, Units.Rotations);
-    inputs.indexerVelocity.mut_replace(velocityRps, Units.RotationsPerSecond);
-    inputs.indexerSupplyCurrent.mut_replace(Math.abs(appliedVoltage) * 0.0, Units.Amps);
-    inputs.indexerStatorCurrent.mut_replace(Math.abs(appliedVoltage) * 0.0, Units.Amps);
-    inputs.indexerInput = appliedVoltage;
-  }
-
-  @Override
-  public void setIndexerGoalPos(Angle goalPos) {
-    // crude "motion magic" style: just directly set position
-    double error = goalPos.in(Units.Rotations) - positionRot;
-    velocityRps = error * 0.0; // pretend proportional controller
-  }
-
-  @Override
-  public void setPID(double kP, double kI, double kD) {
-    // no-op in sim
-  }
-
-  @Override
-  public void setMaxProfile(
-      AngularVelocity maxVelocity,
-      Per<VoltageUnit, AngularAccelerationUnit> expo_kA,
-      Per<VoltageUnit, AngularVelocityUnit> expo_kV) {
-    // no-op in sim
-  }
-
-  @Override
-  public void setFF(double kS, double kV, double kA, double kG) {
-    // no-op in sim
-  }
-
-  @Override
-  public void setBrakeMode(boolean brakeMode) {
-    this.brakeMode = brakeMode;
-  }
-
-  @Override
-  public void setCurrentLimits(com.ctre.phoenix6.configs.CurrentLimitsConfigs limits) {
-    // no-op in sim
-  }
-
-  @Override
-  public void setMotorsDisabled(boolean disabled) {
-    this.motorsDisabled = disabled;
-  }
-
-  @Override
-  public void setOverrideMode(boolean override) {
-    this.overrideMode = override;
-  }
-
-  @Override
-  public void setOverrideVoltage(Voltage voltage) {
-    appliedVoltage = overrideMode ? voltage.in(Units.Volts) : 0.0;
+    super.updateInputs(inputs);
   }
 }

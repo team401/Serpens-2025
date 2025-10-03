@@ -49,7 +49,15 @@ public interface IndexerIO {
     /** Stator current of the indexer motor */
     public MutCurrent indexerStatorCurrent = Amps.mutable(0.0);
 
-    public double indexerInput = 0.0;
+    public Voltage indexerInput;
+
+    public Voltage getIndexerInput() {
+      return indexerInput;
+    }
+
+    public void setIndexerInput(Voltage indexerInput) {
+      this.indexerInput = indexerInput;
+    }
   }
 
   /**

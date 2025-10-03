@@ -9,9 +9,13 @@ public class JsonConstants {
         Filesystem.getDeployDirectory().toPath().resolve("constants/config.json").toString());
 
     FeatureFlags.synced.loadData();
+    IndexerConstants.synced.loadData();
 
     featureFlags = FeatureFlags.synced.getObject();
+    indexerConstants = IndexerConstants.synced.getObject();
   }
 
   public static FeatureFlags featureFlags;
+  public static IndexerConstants indexerConstants;
+  public static IndexerConstants indexerConstantsSim;
 }
