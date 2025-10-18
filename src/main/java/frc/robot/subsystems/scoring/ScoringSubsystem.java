@@ -6,6 +6,8 @@ import coppercore.controls.state_machine.state.PeriodicStateInterface;
 import coppercore.controls.state_machine.state.StateContainer;
 import coppercore.wpilib_interface.MonitoredSubsystem;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.wpilibj.event.BooleanEvent;
+import edu.wpi.first.wpilibj.event.EventLoop;
 import frc.robot.TestModeManager;
 import frc.robot.TestModeManager.TestMode;
 import frc.robot.subsystems.scoring.shooter.ShooterMechanism;
@@ -95,6 +97,15 @@ public class ScoringSubsystem extends MonitoredSubsystem {
   // == SUPPLIERS ==
   private BooleanSupplier shootPressedSupplier = () -> false;
 
+  // == EVENT LOOP ==
+  /**
+   * EventLoop polled at the start of monitoredPeriodic to handle transitions in and out of TestMode
+   * state.
+   *
+   * <p>BooleanEvents for the transitions should be registered in the constructor.
+   */
+  private EventLoop testModeEventLoop = new EventLoop();
+
   /**
    * Construct a new ScoringSubsystem
    *
@@ -112,6 +123,14 @@ public class ScoringSubsystem extends MonitoredSubsystem {
     stateMachineConfiguration
         .configure(ScoringState.StartInit)
         .permit(ScoringTrigger.MovedDuringHoming, ScoringState.FinishInitAfterMoving)
+        .permitIf(
+            ScoringTrigger.HomingFinished,
+            ScoringState.TestMode,
+            ScoringSubsystem::inScoringTestMode)
+        .permit(ScoringTrigger.HomingFinished, ScoringState.Idle);
+
+    stateMachineConfiguration
+        .configure(ScoringState.FinishInitAfterMoving)
         .permitIf(
             ScoringTrigger.HomingFinished,
             ScoringState.TestMode,
@@ -153,6 +172,23 @@ public class ScoringSubsystem extends MonitoredSubsystem {
     // This does not automatically call InitState.onEntry, therefore it must be called in the create
     // method, since calling it here would be leaking `this` in the constructor.
     stateMachine = new StateMachine<>(stateMachineConfiguration, ScoringState.StartInit);
+
+    // Configure transitions into and out of scoring test modes
+    new BooleanEvent(
+            testModeEventLoop,
+            () -> inScoringTestMode() && stateMachine.getCurrentState() != ScoringState.TestMode)
+        .ifHigh(
+            () -> {
+              fireTrigger(ScoringTrigger.ScoringTestModeEntered);
+            });
+
+    new BooleanEvent(
+            testModeEventLoop,
+            () -> stateMachine.getCurrentState() == ScoringState.TestMode && !inScoringTestMode())
+        .ifHigh(
+            () -> {
+              fireTrigger(ScoringTrigger.ScoringTestModeExited);
+            });
   }
 
   // Create method architecture suggested by OpenAI ChatGPT, although no generated code has been
@@ -219,9 +255,8 @@ public class ScoringSubsystem extends MonitoredSubsystem {
 
   @Override
   public void monitoredPeriodic() {
-    if (inScoringTestMode() && stateMachine.getCurrentState() != ScoringState.TestMode) {
-      fireTrigger(ScoringTrigger.ScoringTestModeEntered);
-    }
+    // Poll for test mode transitions
+    testModeEventLoop.poll();
 
     indexer.ifPresent(indexer -> indexer.periodic());
     shooter.ifPresent(shooter -> shooter.periodic());
@@ -334,7 +369,7 @@ public class ScoringSubsystem extends MonitoredSubsystem {
 
   // == INDEXER PASSTHROUGH ==
   /**
-   * Commands the indexer to control to its idle position
+   * Commands the indexer to control to its idle position using closed-loop
    *
    * <p>If the indexer isn't enabled in ScoringFeatureFlags, this is a no-op
    *
@@ -345,7 +380,7 @@ public class ScoringSubsystem extends MonitoredSubsystem {
   }
 
   /**
-   * Commands the indexer to control to its top/indexing position
+   * Commands the indexer to control to its top/indexing position using closed-loop
    *
    * <p>If the indexer isn't enabled in ScoringFeatureFlags, this is a no-op
    *
@@ -356,7 +391,7 @@ public class ScoringSubsystem extends MonitoredSubsystem {
   }
 
   /**
-   * Commands the indexer to drive downward to home into the bottom hardstop
+   * Commands the indexer to drive downward with open-loop control to home into the bottom hardstop
    *
    * <p>If the indexer isn't enabled in ScoringFeatureFlags, this is a no-op
    *

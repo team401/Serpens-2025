@@ -2,7 +2,6 @@ package frc.robot.subsystems.scoring.states;
 
 import coppercore.controls.state_machine.transition.Transition;
 import frc.robot.subsystems.scoring.ScoringSubsystem;
-import frc.robot.subsystems.scoring.ScoringSubsystem.ScoringTrigger;
 
 /**
  * A state that prevents the scoring state machine from taking any action while in test mode.
@@ -15,11 +14,7 @@ import frc.robot.subsystems.scoring.ScoringSubsystem.ScoringTrigger;
 public class TestModeState extends BaseScoringState {
   public void onEntry(Transition transition, ScoringSubsystem scoring) {}
 
-  public void periodic(ScoringSubsystem scoring) {
-    if (!ScoringSubsystem.inScoringTestMode()) {
-      scoring.fireTrigger(ScoringTrigger.ScoringTestModeExited);
-    }
-  }
+  public void periodic(ScoringSubsystem scoring) {}
 
   public void onExit(Transition transition, ScoringSubsystem scoring) {}
 }

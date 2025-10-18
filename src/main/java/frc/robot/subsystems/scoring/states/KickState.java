@@ -7,6 +7,7 @@ import frc.robot.subsystems.scoring.ScoringSubsystem.ScoringTrigger;
 public class KickState extends BaseScoringState {
   public void onEntry(Transition transition, ScoringSubsystem scoring) {}
 
+  @Override
   public void periodic(ScoringSubsystem scoring) {
     scoring.indexIntoShooter();
     scoring.warmupShooter();
