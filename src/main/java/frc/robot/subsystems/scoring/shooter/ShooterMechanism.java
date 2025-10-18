@@ -21,6 +21,7 @@ import frc.robot.subsystems.scoring.shooter.ShooterIO.ShooterInputs;
 import frc.robot.util.AllianceUtil;
 import frc.robot.util.GeomUtil;
 import java.nio.ByteBuffer;
+import java.util.Optional;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
@@ -118,10 +119,8 @@ public class ShooterMechanism {
   @AutoLogOutput(key = "scoring/shooter/poseBasedShooting")
   private boolean poseBasedShooting = false;
 
-  /** Track whether the pose supplier was ever set */
-  private boolean poseSupplierInitialized = false;
-
-  private Supplier<Pose2d> poseSupplier = () -> Pose2d.kZero;
+  /** Pose supplier to use for pose-based shooting */
+  private Optional<Supplier<Pose2d>> poseSupplier = Optional.empty();
 
   /**
    * Is the shot we're currently warming up for attainable?
@@ -191,8 +190,10 @@ public class ShooterMechanism {
    * @param newPoseSupplier The new supplier for poses to use in distance calculations
    */
   public void initializePoseSupplier(Supplier<Pose2d> newPoseSupplier) {
-    poseSupplier = newPoseSupplier;
-    poseSupplierInitialized = true;
+    poseSupplier =
+        Optional.ofNullable(
+            newPoseSupplier); // Use ofNullable to avoid NPE just in case this method is passed
+    // `null`
   }
 
   /**
@@ -254,7 +255,7 @@ public class ShooterMechanism {
           stop();
         }
         case WARMUP -> {
-          if (poseSupplierInitialized && poseBasedShooting) {
+          if (poseSupplier.isPresent() && poseBasedShooting) {
             ShooterSpeeds speeds = calculatePoseBasedSpeeds();
             runSpeeds(speeds);
           } else {
@@ -383,8 +384,16 @@ public class ShooterMechanism {
    * @return The ShooterSpeeds that the shooters should warm up at.
    */
   private ShooterSpeeds calculatePoseBasedSpeeds() {
+    if (!poseSupplier.isPresent()) {
+      new Exception("calculatePoseBasedSpeeds was called without a pose supplier set.")
+          .printStackTrace();
+      ;
+
+      isShotAttainable = false;
+      return ZERO_SPEEDS;
+    }
     // Calculate distance and use lookup-table
-    Pose2d robotPose = poseSupplier.get();
+    Pose2d robotPose = poseSupplier.get().get();
 
     Pair<Translation2d, Translation2d> bargeSegment;
     if (AllianceUtil.isRed()) {
@@ -557,7 +566,7 @@ public class ShooterMechanism {
    */
   public boolean atGoalSpeeds() {
     if (outputMode != ShooterOutputMode.CLOSED_LOOP) {
-      return true;
+      return false;
     }
 
     if (!isShotAttainable) {
