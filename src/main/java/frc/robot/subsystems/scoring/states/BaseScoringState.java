@@ -3,8 +3,6 @@ package frc.robot.subsystems.scoring.states;
 import coppercore.controls.state_machine.state.PeriodicStateInterface;
 import coppercore.controls.state_machine.transition.Transition;
 import frc.robot.subsystems.scoring.ScoringSubsystem;
-import java.util.Optional;
-import java.util.function.Supplier;
 
 /**
  * A base state for the ScoringSubsystem which wraps calls to onEntry, periodic, and onExit with
@@ -16,20 +14,9 @@ import java.util.function.Supplier;
  * will only run if the ScoringSubsystem is present.
  */
 public abstract class BaseScoringState implements PeriodicStateInterface {
-  private final Supplier<Optional<ScoringSubsystem>> getScoring;
-
-  /**
-   * Create a BaseScoringState with a supplier to the optional ScoringSubsystem
-   *
-   * @param getScoring A {@link Supplier} to an {@link Optional} {@link ScoringSubsystem}
-   */
-  protected BaseScoringState(Supplier<Optional<ScoringSubsystem>> getScoring) {
-    this.getScoring = getScoring;
-  }
-
   @Override
   public final void onEntry(Transition transition) {
-    getScoring.get().ifPresent(scoring -> onEntry(transition, scoring));
+    ScoringSubsystem.getInstance().ifPresent(scoring -> onEntry(transition, scoring));
   }
 
   /**
@@ -42,7 +29,7 @@ public abstract class BaseScoringState implements PeriodicStateInterface {
 
   @Override
   public final void periodic() {
-    getScoring.get().ifPresent(scoring -> periodic(scoring));
+    ScoringSubsystem.getInstance().ifPresent(scoring -> periodic(scoring));
   }
 
   /**
@@ -54,7 +41,7 @@ public abstract class BaseScoringState implements PeriodicStateInterface {
 
   @Override
   public final void onExit(Transition transition) {
-    getScoring.get().ifPresent(scoring -> onExit(transition, scoring));
+    ScoringSubsystem.getInstance().ifPresent(scoring -> onExit(transition, scoring));
   }
 
   /**

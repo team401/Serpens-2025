@@ -3,14 +3,15 @@ package frc.robot.subsystems.scoring.states;
 import coppercore.controls.state_machine.transition.Transition;
 import frc.robot.subsystems.scoring.ScoringSubsystem;
 import frc.robot.subsystems.scoring.ScoringSubsystem.ScoringTrigger;
-import java.util.Optional;
-import java.util.function.Supplier;
 
+/**
+ * A state to warm up (get ready to shoot)
+ *
+ * <p>Holds the indexer in its bottom/idle position while warming up the shooter.
+ *
+ * <p>Once the shooter is at its goal speeds, transitions to Kick by firing WarmupReady
+ */
 public class WarmupState extends BaseScoringState {
-  public WarmupState(Supplier<Optional<ScoringSubsystem>> scoringSupplier) {
-    super(scoringSupplier);
-  }
-
   public void onEntry(Transition transition, ScoringSubsystem scoring) {}
 
   public void periodic(ScoringSubsystem scoring) {

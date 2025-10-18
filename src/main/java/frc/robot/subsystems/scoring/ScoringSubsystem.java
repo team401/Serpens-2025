@@ -9,9 +9,10 @@ import edu.wpi.first.math.geometry.Pose2d;
 import frc.robot.TestModeManager;
 import frc.robot.TestModeManager.TestMode;
 import frc.robot.subsystems.scoring.shooter.ShooterMechanism;
+import frc.robot.subsystems.scoring.states.FinishInitAfterMovingState;
 import frc.robot.subsystems.scoring.states.IdleState;
-import frc.robot.subsystems.scoring.states.InitState;
 import frc.robot.subsystems.scoring.states.KickState;
+import frc.robot.subsystems.scoring.states.StartInitState;
 import frc.robot.subsystems.scoring.states.TestModeState;
 import frc.robot.subsystems.scoring.states.WaitToScoreState;
 import frc.robot.subsystems.scoring.states.WarmupState;
@@ -31,12 +32,13 @@ public class ScoringSubsystem extends MonitoredSubsystem {
 
   // == STATE MACHINE ==
   private enum ScoringState implements StateContainer {
-    Init(new InitState(ScoringSubsystem::getInstance)),
-    TestMode(new TestModeState(ScoringSubsystem::getInstance)),
-    Idle(new IdleState(ScoringSubsystem::getInstance)),
-    Warmup(new WarmupState(ScoringSubsystem::getInstance)),
-    Kick(new KickState(ScoringSubsystem::getInstance)),
-    WaitToScore(new WaitToScoreState(ScoringSubsystem::getInstance));
+    StartInit(new StartInitState()),
+    FinishInitAfterMoving(new FinishInitAfterMovingState()),
+    TestMode(new TestModeState()),
+    Idle(new IdleState()),
+    Warmup(new WarmupState()),
+    Kick(new KickState()),
+    WaitToScore(new WaitToScoreState());
 
     private final PeriodicStateInterface state;
 
@@ -52,8 +54,13 @@ public class ScoringSubsystem extends MonitoredSubsystem {
 
   /** Triggers for the {@link ScoringSubsystem}'s {@link team401.coppercore.StateMachine} */
   public enum ScoringTrigger {
-    /** Fired by the InitState after the indexer is homed successfully */
-    Homed,
+    /** Fired by the StartInitState after indexer movement is detected. */
+    MovedDuringHoming,
+    /**
+     * Fired by the StartInitState or FinishInitAfterMovingState after the indexer is homed
+     * successfully
+     */
+    HomingFinished,
     /**
      * Fired by the ScoringSubsystem in periodic when in a Scoring tuning mode but not in
      * TestModeState
@@ -76,9 +83,9 @@ public class ScoringSubsystem extends MonitoredSubsystem {
      */
     WarmupReady,
     /** Fired by the KickState when the indexer has moved to the top of its range of motion */
-    Kicked,
+    IndexerDoneKicking,
     /** Fired by the WaitToScoreState when the time to wait to score has elapsed */
-    WaitedToScore,
+    WaitToScoreTimeExpired,
   }
 
   private final StateMachineConfiguration<ScoringState, ScoringTrigger> stateMachineConfiguration;
@@ -103,9 +110,13 @@ public class ScoringSubsystem extends MonitoredSubsystem {
     stateMachineConfiguration = new StateMachineConfiguration<>();
 
     stateMachineConfiguration
-        .configure(ScoringState.Init)
-        .permitIf(ScoringTrigger.Homed, ScoringState.TestMode, ScoringSubsystem::inScoringTestMode)
-        .permit(ScoringTrigger.Homed, ScoringState.Idle);
+        .configure(ScoringState.StartInit)
+        .permit(ScoringTrigger.MovedDuringHoming, ScoringState.FinishInitAfterMoving)
+        .permitIf(
+            ScoringTrigger.HomingFinished,
+            ScoringState.TestMode,
+            ScoringSubsystem::inScoringTestMode)
+        .permit(ScoringTrigger.HomingFinished, ScoringState.Idle);
 
     stateMachineConfiguration
         .configure(ScoringState.TestMode)
@@ -132,16 +143,16 @@ public class ScoringSubsystem extends MonitoredSubsystem {
 
     stateMachineConfiguration
         .configure(ScoringState.Kick)
-        .permit(ScoringTrigger.Kicked, ScoringState.WaitToScore);
+        .permit(ScoringTrigger.IndexerDoneKicking, ScoringState.WaitToScore);
 
     stateMachineConfiguration
         .configure(ScoringState.WaitToScore)
-        .permit(ScoringTrigger.WaitedToScore, ScoringState.Idle);
+        .permit(ScoringTrigger.WaitToScoreTimeExpired, ScoringState.Idle);
 
     // Create the scoring state machine, starting in Init state
     // This does not automatically call InitState.onEntry, therefore it must be called in the create
     // method, since calling it here would be leaking `this` in the constructor.
-    stateMachine = new StateMachine<>(stateMachineConfiguration, ScoringState.Init);
+    stateMachine = new StateMachine<>(stateMachineConfiguration, ScoringState.StartInit);
   }
 
   // Create method architecture suggested by OpenAI ChatGPT, although no generated code has been
