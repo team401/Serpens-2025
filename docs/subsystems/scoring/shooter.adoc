@@ -25,6 +25,24 @@ This was previously `runSpeeds` but it was replaced since the determination of s
 
 This method will read LoggedTunableNumbers for each PID and Feedforward gain. If the tuning mode specifies a manual control output, it will read either the voltage or the current and apply it. If it specifies closed loop control, it will read shooter speeds and set them as its goal speeds.
 
+[#determining-shooterspeeds,reftext=Determining ShooterSpeeds]
+== Determining ShooterSpeeds
+
+Sets of ShooterSpeeds to aim at the target need to be determined so that the robot can accurately score. In manual mode, this is relatively simple, as we can pick one shot to take that's easy to line the robot up for. This way, the driver will always have a fairly solid fallback.
+
+When vision estimates and odometry can be trusted, the ShooterSpeeds can be determined by:
+
+* Find the direction of the shot by taking the robot's heading and turning 90 degrees counter-clockwise, since the robot will always shoot left.
+
+* Find the point of intersection when casting a ray out from the left side of the robot to the barge
+
+* If that point is in not our team's side of the barge, scoring is currently impossible. In this case, the best course of action is to find the closest point on the barge to the point found previously that is within our side of the barge and warm up as if shooting at that spot instead. Note that it is vital that the state machine isn't allowed to transition to score even if everything else is ready, since the setpoint won't match an actual scoring location.
+
+* Take the distance to that point and feed it into a map that uses InterpolatingDoubleTreeMap from WPILib to map distance to shooter speeds.
+
+** Potential challenge: Performance may be poor if we are constantly creating new ShooterSpeeds objects. ShooterSpeeds might be best converted into a class and then given a method to replace itself by interpolating between two values. Then, we could store one ShooterSpeeds object that gets replaced every in periodic with the current output of the map. This issue has not been encountered as of October 1, 2025, and thus will not be corrected until we have some concrete proof that it's actually a problem.
+
+
 == Tuning Modes
 
 The shooter has various tuning modes to tune gains and test the system. It is recommended to use Elastic Dashboard to interact with the LoggedTunableNumbers published. The shooter defines 3 tuning modes:

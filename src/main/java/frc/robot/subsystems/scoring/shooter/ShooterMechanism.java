@@ -21,6 +21,7 @@ import frc.robot.subsystems.scoring.shooter.ShooterIO.ShooterInputs;
 import frc.robot.util.AllianceUtil;
 import frc.robot.util.GeomUtil;
 import java.nio.ByteBuffer;
+import java.util.Optional;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
@@ -118,10 +119,8 @@ public class ShooterMechanism {
   @AutoLogOutput(key = "scoring/shooter/poseBasedShooting")
   private boolean poseBasedShooting = false;
 
-  /** Track whether the pose supplier was ever set */
-  private boolean poseSupplierInitialized = false;
-
-  private Supplier<Pose2d> poseSupplier = () -> Pose2d.kZero;
+  /** Pose supplier to use for pose-based shooting */
+  private Optional<Supplier<Pose2d>> poseSupplier = Optional.empty();
 
   /**
    * Is the shot we're currently warming up for attainable?
@@ -186,16 +185,15 @@ public class ShooterMechanism {
   }
 
   /**
-   * Set the pose supplier used by the Shooter for RPM calculations and enable pose based shooting.
+   * Set the pose supplier used by the Shooter for RPM calculations
    *
    * @param newPoseSupplier The new supplier for poses to use in distance calculations
    */
   public void initializePoseSupplier(Supplier<Pose2d> newPoseSupplier) {
-    poseSupplier = newPoseSupplier;
-    if (!poseSupplierInitialized) {
-      poseSupplierInitialized = true;
-      poseBasedShooting = true;
-    }
+    poseSupplier =
+        Optional.ofNullable(
+            newPoseSupplier); // Use ofNullable to avoid NPE just in case this method is passed
+    // `null`
   }
 
   /**
@@ -204,8 +202,15 @@ public class ShooterMechanism {
    * <p>This method should be called to enable/disable vision-based shots whenever we gain/lose
    * confidence in vision & odometry
    *
+   * <p>NOTE: This value is also used to determine if the scoring subsystem should automatically
+   * transition from Warmup to Kick: When pose-based shooting is enabled, the scoring subsystem will
+   * automatically take shots when it determines that it is warmed up and ready (the shoot button
+   * can also be used to manually "force-score", which will kick the ball if the regardless of shot
+   * attainability). When pose-based shooting is disabled, the score button must be pressed to
+   * actually kick the algae into the shooter.
+   *
    * <p>If initializePoseSupplier has never been called, poseBasedShootingEnabled will be ignored
-   * until it is initialized. This means that, if this method is called with `true`, nothing wil
+   * until it is initialized. This means that, if this method is called with `true`, nothing will
    * happen until the pose supplier is initialized, after which the shooter will begin using
    * pose-based shooting.
    *
@@ -214,6 +219,17 @@ public class ShooterMechanism {
    */
   public void setPoseBasedShootingEnabled(boolean poseBasedShootingEnabled) {
     poseBasedShooting = poseBasedShootingEnabled;
+  }
+
+  /**
+   * Return whether or not the shooter should use pose based shooting.
+   *
+   * <p>When this is false, the transition to kick/score should be manual rather than automatic.
+   *
+   * @return True if poseBasedShooting is enabled, false if not
+   */
+  public boolean isPoseBasedShootingEnabled() {
+    return poseBasedShooting;
   }
 
   /**
@@ -239,7 +255,7 @@ public class ShooterMechanism {
           stop();
         }
         case WARMUP -> {
-          if (poseSupplierInitialized && poseBasedShooting) {
+          if (poseSupplier.isPresent() && poseBasedShooting) {
             ShooterSpeeds speeds = calculatePoseBasedSpeeds();
             runSpeeds(speeds);
           } else {
@@ -328,7 +344,7 @@ public class ShooterMechanism {
    * Run the shooter wheels at a certain set of speeds.
    *
    * <p>This also updates the goal speeds of the shooter, for reference in {@link
-   * ShooterMechanism#shooterReady()}
+   * ShooterMechanism#atGoalSpeeds()}
    *
    * @param speeds The set of speeds to run the shooter at
    */
@@ -368,8 +384,16 @@ public class ShooterMechanism {
    * @return The ShooterSpeeds that the shooters should warm up at.
    */
   private ShooterSpeeds calculatePoseBasedSpeeds() {
+    if (!poseSupplier.isPresent()) {
+      new Exception("calculatePoseBasedSpeeds was called without a pose supplier set.")
+          .printStackTrace();
+      ;
+
+      isShotAttainable = false;
+      return ZERO_SPEEDS;
+    }
     // Calculate distance and use lookup-table
-    Pose2d robotPose = poseSupplier.get();
+    Pose2d robotPose = poseSupplier.get().get();
 
     Pair<Translation2d, Translation2d> bargeSegment;
     if (AllianceUtil.isRed()) {
@@ -540,9 +564,9 @@ public class ShooterMechanism {
    *
    * @return Whether the shooter is currently within the error margin of its goal speeds
    */
-  public boolean shooterReady() {
+  public boolean atGoalSpeeds() {
     if (outputMode != ShooterOutputMode.CLOSED_LOOP) {
-      return true;
+      return false;
     }
 
     if (!isShotAttainable) {
@@ -564,6 +588,17 @@ public class ShooterMechanism {
     Logger.recordOutput("scoring/shooter/shooterReady", shooterReady);
 
     return shooterReady;
+  }
+
+  /**
+   * Check whether or not the shot is currently attainable.
+   *
+   * <p>If the robot is pointed toward the barge, in range, and not too close, this will be true.
+   *
+   * @return If the shooter could currently make the shot if {@code atGoalSpeeds()} returns true.
+   */
+  public boolean isShotAttainable() {
+    return isShotAttainable;
   }
 
   public final ShooterInputs getLeftInputs() {

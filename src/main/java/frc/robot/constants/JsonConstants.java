@@ -6,6 +6,7 @@ import coppercore.parameter_tools.path_provider.EnvironmentHandler;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Frequency;
 import edu.wpi.first.wpilibj.Filesystem;
+import frc.robot.constants.subsystems.scoring.ScoringConstants;
 import frc.robot.constants.subsystems.scoring.ScoringFeatureFlags;
 import frc.robot.constants.subsystems.scoring.ShooterConstants;
 
@@ -23,6 +24,7 @@ public class JsonConstants {
     CANConstants.synced.loadData();
     RedFieldLocations.synced.loadData();
     BlueFieldLocations.synced.loadData();
+    ScoringConstants.synced.loadData();
     ScoringFeatureFlags.synced.loadData();
     ShooterConstants.synced.loadData();
     ShooterConstants.Sim.synced.loadData();
@@ -31,6 +33,7 @@ public class JsonConstants {
     canConstants = CANConstants.synced.getObject();
     redFieldLocations = RedFieldLocations.synced.getObject();
     blueFieldLocations = BlueFieldLocations.synced.getObject();
+    scoringConstants = ScoringConstants.synced.getObject();
     scoringFeatureFlags = ScoringFeatureFlags.synced.getObject();
     shooterConstants = ShooterConstants.synced.getObject();
     shooterConstantsSim = ShooterConstants.Sim.synced.getObject();
@@ -42,6 +45,7 @@ public class JsonConstants {
   public static CANConstants canConstants;
   public static RedFieldLocations redFieldLocations;
   public static BlueFieldLocations blueFieldLocations;
+  public static ScoringConstants scoringConstants;
   public static ScoringFeatureFlags scoringFeatureFlags;
   public static ShooterConstants shooterConstants;
   public static ShooterConstants.Sim shooterConstantsSim;
