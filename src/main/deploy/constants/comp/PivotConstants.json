@@ -1,6 +1,6 @@
 {
-  "pivotMotorId": 1,
-  "pivotCANcoderId": 2,
+  "pivotMotorId": 40,
+  "pivotCANcoderId": 41,
   "sensorToMechanismRatio": 1.0,
   "pivotReduction": 1.0,
   "pivotMotorInvertedValue": "Clockwise_Positive",

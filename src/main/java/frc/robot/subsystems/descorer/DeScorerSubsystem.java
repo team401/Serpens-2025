@@ -12,6 +12,7 @@ import coppercore.parameter_tools.LoggedTunableNumber;
 import coppercore.wpilib_interface.UnitUtils;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.MutAngle;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.TestModeManager;
 import frc.robot.constants.JsonConstants;
@@ -154,6 +155,10 @@ public class DeScorerSubsystem extends SubsystemBase {
     Logger.processInputs("Descorer/Pivot/outputs", pivotOutputs);
     Logger.processInputs("Descorer/Wheel/inputs", wheelInputs);
     Logger.processInputs("Descorer/Wheel/outputs", wheelOutputs);
+
+    if (DriverStation.isTest()) {
+      testPeriodic();
+    }
   }
 
   /** This method must be called from the subsystem's test periodic! */
@@ -291,7 +296,6 @@ public class DeScorerSubsystem extends SubsystemBase {
 
     Logger.recordOutput("pivot/goalAngle", goalAngle);
   }
-
   /**
    * Sets the minimum and maximum allowed angles that the pivot may target.
    *
@@ -343,7 +347,7 @@ public class DeScorerSubsystem extends SubsystemBase {
     this.maxAngle.mut_replace(
         UnitUtils.clampMeasure(
             maxAngle,
-            JsonConstants.pivotConstants.pivotMaxAngle,
+            JsonConstants.pivotConstants.pivotMinAngle,
             JsonConstants.pivotConstants.pivotMaxAngle));
 
     Logger.recordOutput("pivot/maxAngle", maxAngle);

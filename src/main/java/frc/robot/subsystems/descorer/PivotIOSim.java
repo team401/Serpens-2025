@@ -1,5 +1,6 @@
 package frc.robot.subsystems.descorer;
 
+import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Radians;
@@ -79,8 +80,8 @@ public class PivotIOSim extends PivotIOTalonFX {
 
     super.updateInputs(inputs);
 
-    // inputs.pivotSupplyCurrent.mut_replace(Amps.of(pivotMotorSimState.getSupplyCurrent()));
-    // inputs.pivotStatorCurrent.mut_replace(
-    //     pivotMotor.getStatorCurrent().getValue()); // i changed this
+    inputs.pivotSupplyCurrent.mut_replace(Amps.of(pivotMotorSimState.getSupplyCurrent()));
+    inputs.pivotStatorCurrent.mut_replace(
+        pivotMotor.getStatorCurrent().getValue()); // i changed this
   }
 }

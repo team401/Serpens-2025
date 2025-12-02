@@ -54,7 +54,7 @@ public class PivotConstants {
   /** Peak forward and reverse current for FieldOriented */
   public final Current peakFOCCurrent = Amps.of(40.0);
 
-  public final Double pivotKG = 0.43;
+  public final Double pivotKG = 0.34;
   public final Double pivotKS = 0.1;
   public final Double pivotKV = 12.41;
   public final Double pivotKA = 0.14;

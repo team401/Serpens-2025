@@ -14,6 +14,7 @@ import com.ctre.phoenix6.configs.TorqueCurrentConfigs;
 import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.units.AngularAccelerationUnit;
@@ -37,7 +38,7 @@ public class PivotIOTalonFX implements PivotIO {
 
   private TalonFXConfiguration talonFXConfigs;
 
-  private MutAngle pivotGoalPosition = Rotations.mutable(0.0); // placeholder
+  private MutAngle pivotGoalPosition = Rotations.mutable(0.5); // placeholder
 
   private MotionMagicExpoVoltage request = new MotionMagicExpoVoltage(pivotGoalPosition);
 
@@ -55,6 +56,8 @@ public class PivotIOTalonFX implements PivotIO {
             .withFeedback(
                 new FeedbackConfigs()
                     .withFeedbackRemoteSensorID(JsonConstants.pivotConstants.pivotRotorSensorId)
+                    .withFeedbackSensorSource(
+                        FeedbackSensorSourceValue.RotorSensor) // Chatgpt made this
                     // .withFeedbackSensorSource(FeedbackSensorSourceValue.FusedCANcoder) I don't
                     // think I need this but I'm scared
                     .withSensorToMechanismRatio(
@@ -95,6 +98,7 @@ public class PivotIOTalonFX implements PivotIO {
     inputs.pivotGoalPosition.mut_replace(pivotGoalPosition);
     inputs.pivotSetpointPosition.mut_replace(
         Rotations.of(pivotMotor.getClosedLoopReference().getValue()));
+    Logger.recordOutput("pivotIOTalonFX/velReported", pivotMotor.getVelocity().getValueAsDouble());
     StatusSignal<Angle> positionSignal = pivotMotor.getRotorPosition();
     inputs.connected = positionSignal.getStatus().isOK();
     inputs.pivotPosition.mut_replace(pivotPosition.getValue());
